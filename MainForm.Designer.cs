@@ -36,9 +36,7 @@ namespace XMLY
             this.lblInfo = new System.Windows.Forms.Label();
             this.btnDownload = new System.Windows.Forms.Button();
             this.m_downlist = new System.Windows.Forms.DataGridView();
-            this.btnAnalyze = new System.Windows.Forms.Button();
-            this.btnClear = new System.Windows.Forms.Button();
-            this.btnOpenExplorer = new System.Windows.Forms.Button();
+            this.Selected = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.DocId = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Album = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DocName = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -46,6 +44,11 @@ namespace XMLY
             this.FileSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.SynSpeed = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.SynProgress = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnAnalyze = new System.Windows.Forms.Button();
+            this.btnClear = new System.Windows.Forms.Button();
+            this.btnOpenExplorer = new System.Windows.Forms.Button();
+            this.lblLink = new System.Windows.Forms.LinkLabel();
+            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.m_downlist)).BeginInit();
             this.SuspendLayout();
             // 
@@ -98,6 +101,7 @@ namespace XMLY
             this.m_downlist.ColumnHeadersHeight = 30;
             this.m_downlist.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.m_downlist.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Selected,
             this.DocId,
             this.Album,
             this.DocName,
@@ -114,7 +118,63 @@ namespace XMLY
             this.m_downlist.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.m_downlist.Size = new System.Drawing.Size(951, 364);
             this.m_downlist.TabIndex = 5;
-            //this.m_downlist.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.m_downlist_CellContentClick);
+            this.m_downlist.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.m_downlist_CellContentClick);
+            // 
+            // Selected
+            // 
+            this.Selected.FillWeight = 26.892F;
+            this.Selected.HeaderText = "选择";
+            this.Selected.Name = "Selected";
+            this.Selected.ReadOnly = true;
+            // 
+            // DocId
+            // 
+            this.DocId.FillWeight = 74.29462F;
+            this.DocId.HeaderText = "专辑编号";
+            this.DocId.Name = "DocId";
+            this.DocId.ReadOnly = true;
+            // 
+            // Album
+            // 
+            this.Album.FillWeight = 74.29462F;
+            this.Album.HeaderText = "专辑";
+            this.Album.Name = "Album";
+            this.Album.ReadOnly = true;
+            // 
+            // DocName
+            // 
+            this.DocName.FillWeight = 74.29462F;
+            this.DocName.HeaderText = "声音";
+            this.DocName.Name = "DocName";
+            this.DocName.ReadOnly = true;
+            // 
+            // duration
+            // 
+            this.duration.FillWeight = 74.29462F;
+            this.duration.HeaderText = "时长";
+            this.duration.Name = "duration";
+            this.duration.ReadOnly = true;
+            // 
+            // FileSize
+            // 
+            this.FileSize.FillWeight = 74.29462F;
+            this.FileSize.HeaderText = "大小";
+            this.FileSize.Name = "FileSize";
+            this.FileSize.ReadOnly = true;
+            // 
+            // SynSpeed
+            // 
+            this.SynSpeed.FillWeight = 74.29462F;
+            this.SynSpeed.HeaderText = "速度";
+            this.SynSpeed.Name = "SynSpeed";
+            this.SynSpeed.ReadOnly = true;
+            // 
+            // SynProgress
+            // 
+            this.SynProgress.FillWeight = 74.29462F;
+            this.SynProgress.HeaderText = "进度";
+            this.SynProgress.Name = "SynProgress";
+            this.SynProgress.ReadOnly = true;
             // 
             // btnAnalyze
             // 
@@ -146,60 +206,39 @@ namespace XMLY
             this.btnOpenExplorer.UseVisualStyleBackColor = true;
             this.btnOpenExplorer.Click += new System.EventHandler(this.btnOpenExplorer_Click);
             // 
-            // DocId
+            // lblLink
             // 
-            this.DocId.FillWeight = 85.27919F;
-            this.DocId.HeaderText = "专辑编号";
-            this.DocId.Name = "DocId";
-            this.DocId.ReadOnly = true;
+            this.lblLink.AutoSize = true;
+            this.lblLink.LinkArea = new System.Windows.Forms.LinkArea(5, 34);
+            this.lblLink.LinkVisited = true;
+            this.lblLink.Location = new System.Drawing.Point(29, 451);
+            this.lblLink.Name = "lblLink";
+            this.lblLink.Size = new System.Drawing.Size(276, 19);
+            this.lblLink.TabIndex = 9;
+            this.lblLink.TabStop = true;
+            this.lblLink.Text = "作者博客：http://blog.csdn.net/suqingheangle";
+            this.lblLink.UseCompatibleTextRendering = true;
+            this.lblLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lblLink_LinkClicked);
             // 
-            // Album
+            // linkLabel1
             // 
-            this.Album.FillWeight = 85.27919F;
-            this.Album.HeaderText = "专辑";
-            this.Album.Name = "Album";
-            this.Album.ReadOnly = true;
-            // 
-            // DocName
-            // 
-            this.DocName.FillWeight = 85.27919F;
-            this.DocName.HeaderText = "声音";
-            this.DocName.Name = "DocName";
-            this.DocName.ReadOnly = true;
-            // 
-            // duration
-            // 
-            this.duration.FillWeight = 85.27919F;
-            this.duration.HeaderText = "时长";
-            this.duration.Name = "duration";
-            this.duration.ReadOnly = true;
-            // 
-            // FileSize
-            // 
-            this.FileSize.FillWeight = 85.27919F;
-            this.FileSize.HeaderText = "大小";
-            this.FileSize.Name = "FileSize";
-            this.FileSize.ReadOnly = true;
-            // 
-            // SynSpeed
-            // 
-            this.SynSpeed.FillWeight = 85.27919F;
-            this.SynSpeed.HeaderText = "速度";
-            this.SynSpeed.Name = "SynSpeed";
-            this.SynSpeed.ReadOnly = true;
-            // 
-            // SynProgress
-            // 
-            this.SynProgress.FillWeight = 85.27919F;
-            this.SynProgress.HeaderText = "进度";
-            this.SynProgress.Name = "SynProgress";
-            this.SynProgress.ReadOnly = true;
+            this.linkLabel1.AutoSize = true;
+            this.linkLabel1.LinkArea = new System.Windows.Forms.LinkArea(6, 9);
+            this.linkLabel1.Location = new System.Drawing.Point(377, 451);
+            this.linkLabel1.Name = "linkLabel1";
+            this.linkLabel1.Size = new System.Drawing.Size(122, 19);
+            this.linkLabel1.TabIndex = 10;
+            this.linkLabel1.TabStop = true;
+            this.linkLabel1.Text = "QQ交流群：159817585";
+            this.linkLabel1.UseCompatibleTextRendering = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(976, 464);
+            this.ClientSize = new System.Drawing.Size(976, 479);
+            this.Controls.Add(this.linkLabel1);
+            this.Controls.Add(this.lblLink);
             this.Controls.Add(this.btnOpenExplorer);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.btnAnalyze);
@@ -226,6 +265,9 @@ namespace XMLY
         private System.Windows.Forms.Button btnAnalyze;
         private Button btnClear;
         private Button btnOpenExplorer;
+        private LinkLabel lblLink;
+        private LinkLabel linkLabel1;
+        private DataGridViewCheckBoxColumn Selected;
         private DataGridViewTextBoxColumn DocId;
         private DataGridViewTextBoxColumn Album;
         private DataGridViewTextBoxColumn DocName;

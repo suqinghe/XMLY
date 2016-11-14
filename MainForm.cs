@@ -92,6 +92,7 @@ namespace XMLY
 
 
                 this.StartDownload(next);
+
             }
             catch (Exception exp)
             {
@@ -174,7 +175,7 @@ namespace XMLY
         {
             foreach (SynFileInfo current in this.m_DownloadList)
             {
-                if (!current.isComplete)
+                if (current.Selected && !current.isComplete)
                 {
                     return current;
                 }
@@ -240,7 +241,7 @@ namespace XMLY
                 foreach (Match match in matchCollection)
                 {
                     string[] values2 = new string[]
-                       {
+                       {"true",
                     match.Groups[1].Value.Trim(),
                     value,
                     match.Groups[2].Value.Trim()
@@ -248,7 +249,7 @@ namespace XMLY
 
                     var dgvRow = new DataGridViewRow();
 
-                 
+
 
                     int index2 = this.m_downlist.Rows.Add(values2);
                     DataGridViewRow rowObject2 = this.m_downlist.Rows[index2];
@@ -257,7 +258,8 @@ namespace XMLY
                         DocID = match.Groups[1].Value.Trim(),
                         DocName = match.Groups[2].Value.Trim(),
                         RowObject = rowObject2,
-                        Album = value
+                        Album = value,
+                        Selected = true
                     };
                     this.m_DownloadList.Add(item);
                 }
@@ -278,11 +280,12 @@ namespace XMLY
         {
             string text = this.txtUrl.Text;
             string docID = text.Substring(text.IndexOf("sound/") + 6);
-            SynFileInfo synFileInfo = new SynFileInfo();
+            SynFileInfo synFileInfo = new SynFileInfo { Selected = true };
             synFileInfo.DocID = docID;
             this.GetJsonInfo(synFileInfo);
             string[] values = new string[]
             {
+                    "true",
                     synFileInfo.DocID,
                     synFileInfo.Album,
                     synFileInfo.DocName
@@ -319,6 +322,8 @@ namespace XMLY
             this.StartNewWork();
         }
 
+
+
         private void txtUrl_TextChanged(object sender, EventArgs e)
         {
             string text = Clipboard.GetText();
@@ -352,13 +357,24 @@ namespace XMLY
 
         private void m_downlist_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex != -1)
+
+            if (e.ColumnIndex == 0 && e.RowIndex != -1)
             {
-                if (Convert.ToString(m_downlist.Rows[e.RowIndex].Cells[0].Value) == "true")
-                    m_downlist.Rows[e.RowIndex].Cells[0].Value = "false";
-                else
-                    m_downlist.Rows[e.RowIndex].Cells[0].Value = "true";
+                m_downlist.Rows[e.RowIndex].Cells[0].Value = !Convert.ToBoolean(m_downlist.Rows[e.RowIndex].Cells[0].Value);
+                this.m_DownloadList[e.RowIndex].Selected = false;
             }
         }
+
+        /// <summary>
+        /// 打开博客链接
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void lblLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("http://blog.csdn.net/suqingheangle/article/details/52995772");
+        }
+
     }
 }

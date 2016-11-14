@@ -10,7 +10,6 @@ namespace XMLY
 {
     public class SynFileInfo
     {
-        public string ID { get; set; }
         public string DocID
         {
             get;
@@ -64,7 +63,7 @@ namespace XMLY
             get;
             set;
         }
-
+        public bool Selected { get; set; }
         [XmlIgnore]
         public DataGridViewRow RowObject
         {
@@ -91,6 +90,8 @@ namespace XMLY
         public SynFileInfo(object[] objectArr)
         {
             int num = 0;
+            this.Selected = Convert.ToBoolean(objectArr[num].ToString());
+            num++;
             this.DocID = objectArr[num].ToString();
             num++;
             this.Album = objectArr[num].ToString();

@@ -13,3 +13,15 @@ G:\visual studio 2015\Projects\XMLYDownload\XMLY\bin\Debug\XMLY.exe.manifest
 G:\visual studio 2015\Projects\XMLYDownload\XMLY\bin\Debug\XMLY.application
 G:\visual studio 2015\Projects\XMLYDownload\XMLY\obj\Debug\XMLY.exe.manifest
 G:\visual studio 2015\Projects\XMLYDownload\XMLY\obj\Debug\XMLY.application
+F:\工作资料\喜马拉雅\XMLY\bin\Debug\XMLY.exe.config
+F:\工作资料\喜马拉雅\XMLY\obj\Debug\XMLY.exe
+F:\工作资料\喜马拉雅\XMLY\obj\Debug\XMLY.pdb
+F:\工作资料\喜马拉雅\XMLY\bin\Debug\XMLY.exe.manifest
+F:\工作资料\喜马拉雅\XMLY\bin\Debug\XMLY.application
+F:\工作资料\喜马拉雅\XMLY\bin\Debug\XMLY.exe
+F:\工作资料\喜马拉雅\XMLY\bin\Debug\XMLY.pdb
+F:\工作资料\喜马拉雅\XMLY\obj\Debug\XMLY.MainForm.resources
+F:\工作资料\喜马拉雅\XMLY\obj\Debug\XMLY.Properties.Resources.resources
+F:\工作资料\喜马拉雅\XMLY\obj\Debug\XMLY.csproj.GenerateResource.Cache
+F:\工作资料\喜马拉雅\XMLY\obj\Debug\XMLY.exe.manifest
+F:\工作资料\喜马拉雅\XMLY\obj\Debug\XMLY.application
