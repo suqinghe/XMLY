@@ -1,0 +1,15 @@
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\bin\Debug\XMLY.exe.config
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\bin\Debug\XMLY.exe
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\bin\Debug\XMLY.pdb
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\bin\Debug\Newtonsoft.Json.dll
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\bin\Debug\Newtonsoft.Json.xml
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\obj\Debug\XMLY.MainForm.resources
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\obj\Debug\XMLY.Properties.Resources.resources
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\obj\Debug\XMLY.csproj.GenerateResource.Cache
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\obj\Debug\XMLY.exe
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\obj\Debug\XMLY.pdb
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\obj\Debug\XMLY.csprojResolveAssemblyReference.cache
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\bin\Debug\XMLY.exe.manifest
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\bin\Debug\XMLY.application
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\obj\Debug\XMLY.exe.manifest
+G:\visual studio 2015\Projects\XMLYDownload\XMLY\obj\Debug\XMLY.application
