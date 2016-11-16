@@ -27,7 +27,7 @@ namespace XMLY
         /// 创建文件夹
         /// </summary>
         /// <param name="dir"></param>
-        public static void mkdir(string dir)
+        public static void MakeDirectory(string dir)
         {
             if (!Directory.Exists(dir))
             {

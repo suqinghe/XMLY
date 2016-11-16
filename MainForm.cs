@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
@@ -221,6 +222,10 @@ namespace XMLY
             this.txtUrl.Text = placeHolder;
             this.txtUrl.ForeColor = System.Drawing.Color.Gray;
             this.lblInfo.Text = string.Empty;
+
+            //把即将下载的节点下的子节点清除
+            var parentNode = FindPendingNode();
+            parentNode.Nodes.Clear();
         }
 
         #endregion
@@ -320,6 +325,7 @@ namespace XMLY
                         }
                     }
 
+                    this.AddToPendingList(this.m_DownloadList);
                 }
 
 
@@ -377,187 +383,283 @@ namespace XMLY
                             Album = value,
                             Selected = true,
                             AlbumId = albumId
-                    };
-                    this.m_DownloadList.Add(item);
-                }
+                        };
+                        this.m_DownloadList.Add(item);
+                    }
                     else
                     {
-                    this.showinfo("列表中已经存在" + match.Groups[1].Value.Trim() + "的声音");
+                        this.showinfo("列表中已经存在" + match.Groups[1].Value.Trim() + "的声音");
+                    }
+
+                }
+
+
+                this.showinfo("共" + this.m_DownloadList.Count.ToString() + "条声音");
+            }
+            catch (Exception exp)
+            {
+                var content = "内容解析失败，请查看链接地址是否正确！";
+                LogHelper.WriteLog(content + exp.Message);
+                this.showinfo(content);
+            }
+        }
+
+        private void AddToPendingList(List<SynFileInfo> lst)
+        {
+            var items = from p in lst
+                        group p by p.Album
+                     into g
+                        select new
+                        {
+                            Name = g.Key,
+                            AlbumId = g.FirstOrDefault().AlbumId
+                        };
+
+            var parentNode = FindPendingNode();
+
+            foreach (var item in items)
+            {
+                if (!parentNode.Nodes.ContainsKey(item.AlbumId))
+                {
+                    parentNode.Nodes.Add(item.AlbumId, item.Name);
                 }
 
             }
 
-                this.AddToPendingList(this.m_DownloadList);
 
-            this.showinfo("共" + this.m_DownloadList.Count.ToString() + "条声音");
+            DownloadHelper.SaveList(lst);
         }
-            catch (Exception exp)
+
+        private TreeNode FindPendingNode()
+        {
+            var allNodes = this.tvPendingDownload.Nodes.Find("pendingDown", false);
+            var parentNode = allNodes.FirstOrDefault();
+
+            return parentNode;
+        }
+
+        private void AddToPendingList(SynFileInfo info)
+        {
+            var parentNode = FindPendingNode();
+            if (!parentNode.Nodes.ContainsKey(info.AlbumId))
             {
-                var content = "内容解析失败，请查看链接地址是否正确！";
-        LogHelper.WriteLog(content + exp.Message);
-                this.showinfo(content);
-    }
-}
+                parentNode.Nodes.Add(info.AlbumId, info.Album);
+            }
+        }
 
-private void AddToPendingList(List<SynFileInfo> lst)
-{
-    var items = from p in lst
-                group p by p.Album
-             into g
-                select new
-                {
-                    Name = g.Key,
-                    Count = g.Count(),
-                    AlbumId = g.FirstOrDefault().AlbumId
-                };
-
-    foreach (var item in items)
-    {
-        if (!this.tvPendingDownload.Nodes.ContainsKey(item.AlbumId))
-            this.tvPendingDownload.Nodes.Add(item.AlbumId, string.Format("{0}({1})", item.Name, item.Count));
-    }
-}
-
-/// <summary>
-/// 分析单个
-/// </summary>
-private void AnalyzeSigleDoc(string link)
-{
-    string text = link;
-    string docID = text.Substring(text.IndexOf("sound/") + 6);
-    SynFileInfo synFileInfo = new SynFileInfo { Selected = true };
-    synFileInfo.DocID = docID;
-    DownloadHelper.GetJsonInfo(synFileInfo);
-    string[] values = new string[]
-    {
+        /// <summary>
+        /// 分析单个
+        /// </summary>
+        private void AnalyzeSigleDoc(string link)
+        {
+            string text = link;
+            string docID = text.Substring(text.IndexOf("sound/") + 6);
+            SynFileInfo synFileInfo = new SynFileInfo { Selected = true };
+            synFileInfo.DocID = docID;
+            DownloadHelper.GetJsonInfo(synFileInfo);
+            string[] values = new string[]
+            {
                     "true",
                     synFileInfo.DocID,
                     synFileInfo.Album,
                     synFileInfo.DocName
-    };
+            };
 
-    //列表中不存在，才进行添加
-    if (!this.m_DownloadList.Any(a => a.DocID == synFileInfo.DocID))
-    {
-        int index = this.m_downlist.Rows.Add(values);
-        DataGridViewRow rowObject = this.m_downlist.Rows[index];
+            //列表中不存在，才进行添加
+            if (!this.m_DownloadList.Any(a => a.DocID == synFileInfo.DocID))
+            {
+                int index = this.m_downlist.Rows.Add(values);
+                DataGridViewRow rowObject = this.m_downlist.Rows[index];
 
-        synFileInfo.RowObject = rowObject;
-        synFileInfo.RowObject.Cells["duration"].Value = (synFileInfo.duration / 60).ToString() + "分钟";
+                synFileInfo.RowObject = rowObject;
+                synFileInfo.RowObject.Cells["duration"].Value = (synFileInfo.duration / 60).ToString() + "分钟";
 
-        this.m_DownloadList.Add(synFileInfo);
-    }
-    else
-    {
-        this.showinfo("列表中已经存在" + synFileInfo.DocID + "的声音");
-    }
-    return;
-}
+                this.m_DownloadList.Add(synFileInfo);
+            }
+            else
+            {
+                this.showinfo("列表中已经存在" + synFileInfo.DocID + "的声音");
+            }
 
+            AddToPendingList(synFileInfo);
 
-
-#endregion
-
-#region 关于部分
-/// <summary>
-/// 关于作者
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-private void tmi_about_author_Click(object sender, EventArgs e)
-{
-    MessageBox.Show("文艺程序猿一枚，主攻后端，兼做全栈，爱好开源，支持版权。\r\n上得了厅堂，下得了厨房，写得了代码，查得出异常，杀得了木马，翻得了围墙。\r\n\r\n--有态度的Coder      http://blog.cdsn.net/suqingheangle", "关于作者", MessageBoxButtons.OK, MessageBoxIcon.Information);
-}
-
-/// <summary>
-/// 关于系统
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-private void tmi_about_system_Click(object sender, EventArgs e)
-{
-    MessageBox.Show("本程序仅为喜马拉雅爱好者提供批量下载使用，且对下载内容不负任何责任。\r\n本程序严禁用于商业用途或者出售，一经发现，必当追究！\r\n\r\n--有态度的Coder      http://blog.cdsn.net/suqingheangle", "关于系统", MessageBoxButtons.OK, MessageBoxIcon.Information);
-}
-
-/// <summary>
-/// 免责声明
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-private void tmi_license_Click(object sender, EventArgs e)
-{
-    MessageBox.Show("本程序仅为交流学习使用，严禁用于任何商业用途！\r\n请勿侵犯他人权益，因此而产生的法律责任，由下载者自行承担！\r\n若有发现侵权，请及时致电：suqingheangle@163.com，将在第一时间协助处理！\r\n\r\n--有态度的Coder      http://blog.cdsn.net/suqingheangle", "免责声明", MessageBoxButtons.OK, MessageBoxIcon.Information);
-}
-
-/// <summary>
-/// 联系我们
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-private void tmi_contact_us_Click(object sender, EventArgs e)
-{
-    MessageBox.Show("作者很忙的，只留下了如下联系方式：\r\n邮箱：suqingheangle@163.com\r\n博客：http://blog.cdsn.net/suqingheangle \r\nGithub：https://github.com/suqinghe \r\n\r\n--有态度的Coder", "联系我们", MessageBoxButtons.OK, MessageBoxIcon.Information);
-}
+            return;
+        }
 
 
-/// <summary>
-/// 打开博客链接
-/// 
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-private void tml_author_blog_Click(object sender, EventArgs e)
-{
-    System.Diagnostics.Process.Start("http://blog.csdn.net/suqingheangle");
-}
-#endregion
-
-#region 系统设置
-/// <summary>
-/// 下载路径设置
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-private void tmi_setting_path_Click(object sender, EventArgs e)
-{
-
-}
-
-/// <summary>
-/// 打开所在目录
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-private void btnOpenExplorer_Click(object sender, EventArgs e)
-{
-    var path = Application.StartupPath;
-    System.Diagnostics.Process.Start("Explorer.exe", path);
-}
-
-
-/// <summary>
-/// 退出系统
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-private void tmi_exit_Click(object sender, EventArgs e)
-{
-    this.Dispose();
-    this.Close();
-}
-
-/// <summary>
-/// 关闭窗口
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-{
-    this.m_downlist.Rows.Clear();
-    this.m_DownloadList.Clear();
-}
 
         #endregion
 
+        #region 关于部分
+        /// <summary>
+        /// 关于作者
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tmi_about_author_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("文艺程序猿一枚，主攻后端，兼做全栈，爱好开源，支持版权。\r\n上得了厅堂，下得了厨房，写得了代码，查得出异常，杀得了木马，翻得了围墙。\r\n\r\n--有态度的Coder      http://blog.cdsn.net/suqingheangle", "关于作者", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// 关于系统
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tmi_about_system_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("本程序仅为喜马拉雅爱好者提供批量下载使用，且对下载内容不负任何责任。\r\n本程序严禁用于商业用途或者出售，一经发现，必当追究！\r\n\r\n--有态度的Coder      http://blog.cdsn.net/suqingheangle", "关于系统", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// 免责声明
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tmi_license_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("本程序仅为交流学习使用，严禁用于任何商业用途！\r\n请勿侵犯他人权益，因此而产生的法律责任，由下载者自行承担！\r\n若有发现侵权，请及时致电：suqingheangle@163.com，将在第一时间协助处理！\r\n\r\n--有态度的Coder      http://blog.cdsn.net/suqingheangle", "免责声明", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// 联系我们
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tmi_contact_us_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("作者很忙的，只留下了如下联系方式：\r\n邮箱：suqingheangle@163.com\r\n博客：http://blog.cdsn.net/suqingheangle \r\nGithub：https://github.com/suqinghe \r\n\r\n--有态度的Coder", "联系我们", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+
+        /// <summary>
+        /// 打开博客链接
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tml_author_blog_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("http://blog.csdn.net/suqingheangle");
+        }
+        #endregion
+
+        #region 系统设置
+        /// <summary>
+        /// 下载路径设置
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tmi_setting_path_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// 打开所在目录
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnOpenExplorer_Click(object sender, EventArgs e)
+        {
+            var path = Application.StartupPath;
+            System.Diagnostics.Process.Start("Explorer.exe", path);
+        }
+
+
+        /// <summary>
+        /// 退出系统
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tmi_exit_Click(object sender, EventArgs e)
+        {
+            this.Dispose();
+            this.Close();
+        }
+
+        /// <summary>
+        /// 关闭窗口
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.m_downlist.Rows.Clear();
+            this.m_DownloadList.Clear();
+        }
+
+        #endregion
+
+        #region 下载树状菜单事件
+        /// <summary>
+        /// 即将下载双击
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tvPendingDownload_DoubleClick(object sender, EventArgs e)
+        {
+            var selectNode = this.tvPendingDownload.SelectedNode;
+            if (selectNode.Name == "pendingNode")
+            {
+
+            }
+            else
+            {
+                var albumId = selectNode.Name;
+            }
+        }
+
+        /// <summary>
+        /// 即将下载的右键菜单
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tvPendingDownload_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)//判断你点的是不是右键
+            {
+                Point ClickPoint = new Point(e.X, e.Y);
+                TreeNode CurrentNode = tvPendingDownload.GetNodeAt(ClickPoint);
+                if (CurrentNode != null)//判断你点的是不是一个节点
+                {
+                    switch (CurrentNode.Name)//根据不同节点显示不同的右键菜单，当然你可以让它显示一样的菜单
+                    {
+                        case "pendingDown":
+                            CurrentNode.ContextMenuStrip = contextMenuStrip2;
+                            break;
+                        default:
+                            CurrentNode.ContextMenuStrip = contextMenuStrip1;
+                            break;
+                    }
+
+                    CurrentNode.ContextMenuStrip.Show();
+
+                    tvPendingDownload.SelectedNode = CurrentNode;//选中这个节点
+                }
+            }
+        }
+
+        /// <summary>
+        /// 完成下载的邮件菜单
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tvDoneDownload_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)//判断你点的是不是右键
+            {
+                Point ClickPoint = new Point(e.X, e.Y);
+                TreeNode CurrentNode = tvDoneDownload.GetNodeAt(ClickPoint);
+                if (CurrentNode != null && CurrentNode.Name != "DoneDown")//判断你点的是不是一个节点
+                {
+                    CurrentNode.ContextMenuStrip = contextMenuStrip3;
+                    CurrentNode.ContextMenuStrip.Show();
+                    tvDoneDownload.SelectedNode = CurrentNode;//选中这个节点
+                }
+            }
+        }
+
+        #endregion
     }
 }

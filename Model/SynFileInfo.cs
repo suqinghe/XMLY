@@ -116,4 +116,19 @@ namespace XMLY
             this.RowObject = (DataGridViewRow)objectArr[num];
         }
     }
+
+
+    public class SynFileInfoComPare : IEqualityComparer<SynFileInfo>
+    {
+
+        public bool Equals(SynFileInfo x, SynFileInfo y)
+        {
+            return x.DocID == y.DocID;
+        }
+
+        public int GetHashCode(SynFileInfo obj)
+        {
+            return obj.DocID.GetHashCode();
+        }
+    }
 }
