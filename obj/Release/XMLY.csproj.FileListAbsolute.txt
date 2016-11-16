@@ -25,3 +25,4 @@ F:\工作资料\喜马拉雅\XMLY\obj\Release\XMLY.Properties.Resources.resource
 F:\工作资料\喜马拉雅\XMLY\obj\Release\XMLY.csproj.GenerateResource.Cache
 F:\工作资料\喜马拉雅\XMLY\obj\Release\XMLY.exe.manifest
 F:\工作资料\喜马拉雅\XMLY\obj\Release\XMLY.application
+G:\喜马拉雅\XMLY\bin\Release\XMLY.exe

@@ -21,6 +21,7 @@ namespace XMLY
             get;
             set;
         }
+        public string AlbumId { get; set; }
 
         public string DocName
         {
