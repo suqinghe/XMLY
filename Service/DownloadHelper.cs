@@ -35,10 +35,10 @@ namespace XMLY
             tf.Album = FileHelper.FixFileName(jToken["album_title"].ToString());
             tf.duration = (int)Convert.ToDouble(value2);
             tf.AlbumId = jToken["album_id"].ToString();
-            FileHelper.MakeDirectory(Application.StartupPath + "\\" + tf.Album + "\\");
+            FileHelper.MakeDirectory(FileHelper.GetSavePath() + "\\" + tf.Album + "\\");
             tf.SavePath = string.Concat(new string[]
             {
-                Application.StartupPath,
+                FileHelper.GetSavePath(),
                 "\\",
                 tf.Album,
                 "\\",
@@ -49,12 +49,15 @@ namespace XMLY
 
 
         // 喜马拉雅音频下载器.Form1
-        public static void SaveList(List<SynFileInfo> lst)
+        public static string SaveList(List<SynFileInfo> lst, string xmlPath = null)
         {
-            var xmlPath = string.Format("{0}/{1}/{2}.xml", Application.StartupPath, "Download", DateTime.Now.ToString("yyyyMMdd"));
+            if (string.IsNullOrWhiteSpace(xmlPath))
+                xmlPath = string.Format("{0}/{1}/{2}.xml", Application.StartupPath, "Download", DateTime.Now.ToString("yyyyMMdd"));
 
             var fl = new FileInfo(xmlPath);
             FileHelper.MakeDirectory(fl.DirectoryName);
+
+            lst.ForEach(a => a.XmlName = DateTime.Now.ToString("yyyyMMdd"));
 
             var existList = new List<SynFileInfo>();
             if (fl.Exists)
@@ -63,8 +66,6 @@ namespace XMLY
             }
 
             var newList = lst.Union(existList, new SynFileInfoComPare()).ToList();
-
-
             FileStream fileStream = new FileStream(xmlPath, FileMode.Create);
             try
             {
@@ -74,44 +75,58 @@ namespace XMLY
             }
             catch (Exception exp)
             {
+                LogHelper.WriteLog("保存类别出错：" + exp.Message);
                 fileStream.Close();
             }
+
+            return xmlPath;
         }
 
 
         // 喜马拉雅音频下载器.Form1
-        public static List<SynFileInfo> LoadList(string fileName)
+        public static List<SynFileInfo> LoadList(string xmlPath)
         {
             var lst = new List<SynFileInfo>();
-            var xmlPath = string.Format("{0}/{1}/{2}.xml", Application.StartupPath, "Download", DateTime.Now.ToString("yyyyMMdd"));
 
-            FileStream fileStream = new FileStream(xmlPath, FileMode.OpenOrCreate);
             try
             {
-                XmlSerializer xmlSerializer = new XmlSerializer(lst.GetType());
-                lst = (List<SynFileInfo>)xmlSerializer.Deserialize(fileStream);
-                fileStream.Close();
-                //foreach (SynFileInfo current in this.m_DownloadList)
-                //{
-                //    int index = this.dataGridView1.Rows.Add();
-                //    DataGridViewRow dataGridViewRow = this.dataGridView1.Rows[index];
-                //    dataGridViewRow.Cells["DocID"].Value = current.DocID;
-                //    dataGridViewRow.Cells["Album"].Value = current.Album;
-                //    dataGridViewRow.Cells["DocName"].Value = current.DocName;
-                //    if (current.isComplete)
-                //    {
-                //        dataGridViewRow.Cells["SynProgress"].Value = "完成";
-                //    }
-                //    current.RowObject = dataGridViewRow;
-                //}
+                using (FileStream fileStream = new FileStream(xmlPath, FileMode.OpenOrCreate))
+                {
+                    XmlSerializer xmlSerializer = new XmlSerializer(lst.GetType());
+                    lst = (List<SynFileInfo>)xmlSerializer.Deserialize(fileStream);
+                    fileStream.Close();
+                }
             }
             catch (Exception exp)
             {
-                fileStream.Close();
+                LogHelper.WriteLog("加载列表出错：" + exp.Message);
             }
 
             return lst;
         }
 
+        /// <summary>
+        /// 更新列表
+        /// </summary>
+        /// <param name="m_DownloadList"></param>
+        internal static void UpdateList(List<SynFileInfo> m_DownloadList)
+        {
+            var albumId = m_DownloadList.FirstOrDefault().AlbumId;
+
+            foreach (var xmlName in m_DownloadList.Select(a => a.XmlName).Distinct())
+            {
+                var fullPath = string.Format("{0}/{1}/{2}.xml", Application.StartupPath, "Download", xmlName);
+
+                var fl = new FileInfo(fullPath);
+                if (!fl.Exists)
+                    continue;
+
+                var subItems = LoadList(fullPath);
+
+                subItems.Where(a => a.AlbumId == albumId).ToList().ForEach(a => a.isComplete = true);
+
+                SaveList(subItems, fullPath);
+            }
+        }
     }
 }

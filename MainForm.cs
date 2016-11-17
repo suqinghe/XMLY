@@ -149,6 +149,30 @@ namespace XMLY
         {
             SynFileInfo synFileInfo = (SynFileInfo)e.UserState;
             synFileInfo.isComplete = true;
+
+
+            var repeatRow = this.m_downlist.Rows.Cast<DataGridViewRow>().FirstOrDefault(a => a.Cells["DocId"].Value.ToString() == synFileInfo.DocID);
+            if (repeatRow != null)
+            {
+                repeatRow.DefaultCellStyle.ForeColor = Color.Green;
+            }
+
+
+            //该张专辑全部下载完后，字体变绿
+            if (m_DownloadList.Where(a => a.AlbumId == synFileInfo.AlbumId).All(a => a.isComplete))
+            {
+                var parentNode = FindPendingNode();
+                var nodes = parentNode.Nodes.Find(synFileInfo.AlbumId, false);
+                if (nodes.Count() > 0)
+                {
+                    var currentNode = nodes.FirstOrDefault();
+                    currentNode.ForeColor = Color.Green;
+                }
+
+                var albumItems = this.m_DownloadList.Where(a => a.AlbumId == synFileInfo.AlbumId).ToList();
+                DownloadHelper.UpdateList(albumItems);
+            }
+
             this.StartNewWork();
         }
 
@@ -412,7 +436,8 @@ namespace XMLY
                         select new
                         {
                             Name = g.Key,
-                            AlbumId = g.FirstOrDefault().AlbumId
+                            AlbumId = g.FirstOrDefault().AlbumId,
+                            IsAllComplete = g.All(a => a.isComplete)
                         };
 
             var parentNode = FindPendingNode();
@@ -421,19 +446,20 @@ namespace XMLY
             {
                 if (!parentNode.Nodes.ContainsKey(item.AlbumId))
                 {
-                    parentNode.Nodes.Add(item.AlbumId, item.Name);
+                    var addNode = parentNode.Nodes.Add(item.AlbumId, item.Name);
+                    if (item.IsAllComplete)
+                        addNode.ForeColor = Color.Green;
                 }
 
             }
 
-
-            DownloadHelper.SaveList(lst);
         }
 
         private TreeNode FindPendingNode()
         {
             var allNodes = this.tvPendingDownload.Nodes.Find("pendingDown", false);
             var parentNode = allNodes.FirstOrDefault();
+            parentNode.Expand();
 
             return parentNode;
         }
@@ -552,7 +578,13 @@ namespace XMLY
         /// <param name="e"></param>
         private void tmi_setting_path_Click(object sender, EventArgs e)
         {
-
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                var path = dialog.SelectedPath;
+                FileHelper.SetSavePath(path);
+                MessageBox.Show("保存路径设置成功，当前保存路径为：" + path, "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         /// <summary>
@@ -599,15 +631,15 @@ namespace XMLY
         /// <param name="e"></param>
         private void tvPendingDownload_DoubleClick(object sender, EventArgs e)
         {
-            var selectNode = this.tvPendingDownload.SelectedNode;
-            if (selectNode.Name == "pendingNode")
-            {
+            //var selectNode = this.tvPendingDownload.SelectedNode;
+            //if (selectNode.Name == "pendingNode")
+            //{
 
-            }
-            else
-            {
-                var albumId = selectNode.Name;
-            }
+            //}
+            //else
+            //{
+            //    var albumId = selectNode.Name;
+            //}
         }
 
         /// <summary>
@@ -640,25 +672,6 @@ namespace XMLY
             }
         }
 
-        /// <summary>
-        /// 完成下载的邮件菜单
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void tvDoneDownload_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)//判断你点的是不是右键
-            {
-                Point ClickPoint = new Point(e.X, e.Y);
-                TreeNode CurrentNode = tvDoneDownload.GetNodeAt(ClickPoint);
-                if (CurrentNode != null && CurrentNode.Name != "DoneDown")//判断你点的是不是一个节点
-                {
-                    CurrentNode.ContextMenuStrip = contextMenuStrip3;
-                    CurrentNode.ContextMenuStrip.Show();
-                    tvDoneDownload.SelectedNode = CurrentNode;//选中这个节点
-                }
-            }
-        }
 
         #endregion
 
@@ -687,8 +700,10 @@ namespace XMLY
 
         private void tmi_save_list_Click(object sender, EventArgs e)
         {
-            DownloadHelper.SaveList(this.m_DownloadList);
+            var path = DownloadHelper.SaveList(this.m_DownloadList);
 
+            if (!string.IsNullOrWhiteSpace(path))
+                MessageBox.Show("列表保存成功，保存路径为：" + path, "列表保存提醒", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void tmi_load_list_Click(object sender, EventArgs e)
@@ -702,31 +717,52 @@ namespace XMLY
                 this.m_DownloadList = DownloadHelper.LoadList(path);
 
                 AddFileToGridDataView(this.m_DownloadList);
+
+                AddToPendingList(this.m_DownloadList);
             }
 
         }
- 
+
         private void AddFileToGridDataView(List<SynFileInfo> lst)
         {
             foreach (var item in lst)
             {
+                var repeatRow = this.m_downlist.Rows.Cast<DataGridViewRow>().FirstOrDefault(a => a.Cells["DocId"].Value.ToString() == item.DocID);
+                if (repeatRow != null)
+                    continue;
+
                 int index = this.m_downlist.Rows.Add();
                 DataGridViewRow row = this.m_downlist.Rows[index];
 
-                  
                 row.Cells["DocId"].Value = item.DocID;
                 row.Cells["Album"].Value = item.Album;
                 //row.Cells["AlbumId"].Value = item.AlbumId;
                 row.Cells["DocName"].Value = item.DocName;
-                row.Cells["FileSize"].Value = item.FileSize;
+                row.Cells["SynProgress"].Value = item.isComplete ? "100%" : "0";
+                //row.Cells["FileSize"].Value = item.FileSize;
                 //row.Cells["isComplete"].Value = item.isComplete;
                 //row.Cells["DownPath"].Value = item.DownPath;
                 //row.Cells["SavePath"].Value = item.SavePath;
-                row.Cells["duration"].Value = (item.duration / 60).ToString() + "分钟";
+                //row.Cells["duration"].Value = (item.duration / 60).ToString() + "分钟";
+                row.Cells["Selected"].Value = true;
+                item.Selected = true;
+
+                if (item.isComplete)
+                    row.DefaultCellStyle.ForeColor = Color.Green;
+
                 item.RowObject = row;
                 //this.m_downlist.Rows.Add(item.RowObject);
             }
         }
 
+        /// <summary>
+        /// 捐赠该软件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tmi_donate_author_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

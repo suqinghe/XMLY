@@ -40,3 +40,4 @@ G:\喜马拉雅\XMLY\obj\Debug\XMLY.Properties.Resources.resources
 G:\喜马拉雅\XMLY\obj\Debug\XMLY.csproj.GenerateResource.Cache
 G:\喜马拉雅\XMLY\obj\Debug\XMLY.exe.manifest
 G:\喜马拉雅\XMLY\obj\Debug\XMLY.application
+F:\工作资料\喜马拉雅\XMLY\obj\Debug\XMLY.csprojResolveAssemblyReference.cache

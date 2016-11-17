@@ -10,7 +10,7 @@ namespace XMLY
     public static class FileHelper
     {
 
-       
+
         /// <summary>
         /// 保存专辑
         /// </summary>
@@ -57,6 +57,65 @@ namespace XMLY
             return s;
         }
 
+        /// <summary>
+        /// 设置保存路径
+        /// </summary>
+        /// <param name="path"></param>
+        public static void SetSavePath(string path)
+        {
+            var fl = new FileInfo(Application.StartupPath + "/setting.ini");
 
+            MakeDirectory(fl.DirectoryName);
+
+            if (!File.Exists(fl.FullName))
+            {
+                using (StreamWriter sw = File.CreateText(fl.FullName))
+                {
+                    sw.WriteLine(path);
+                    sw.Close();
+                }
+            }
+            else
+            {
+                using (StreamWriter w = File.AppendText(fl.FullName))
+                {
+                    w.WriteLine(path);
+                    w.Close();
+                }
+            }
+
+        }
+
+
+        private static string SavePath = string.Empty;
+        /// <summary>
+        /// 读取保存路径
+        /// </summary>
+        /// <returns></returns>
+        public static string GetSavePath()
+        {
+            if (!string.IsNullOrWhiteSpace(SavePath))
+                return SavePath;
+
+            var path = Application.StartupPath;
+
+            var fl = new FileInfo(Application.StartupPath + "/setting.ini");
+            if (fl.Exists)
+            {
+                var temp = File.ReadAllText(fl.FullName);
+                if (!string.IsNullOrWhiteSpace(temp))
+                {
+                    var newFl = new DirectoryInfo(temp);
+                    if (!newFl.Exists)
+                        MakeDirectory(newFl.FullName);
+
+                    path = newFl.FullName;
+
+                    SavePath = path;
+                }
+
+            }
+            return path;
+        }
     }
 }

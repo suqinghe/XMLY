@@ -84,6 +84,8 @@ namespace XMLY
             set;
         }
 
+        public string XmlName { get; set; }
+
         public SynFileInfo()
         {
         }
@@ -114,6 +116,7 @@ namespace XMLY
             this.isComplete = Convert.ToBoolean(objectArr[num]);
             num++;
             this.RowObject = (DataGridViewRow)objectArr[num];
+            
         }
     }
 
