@@ -661,5 +661,72 @@ namespace XMLY
         }
 
         #endregion
+
+        private void tsmi_downAlbum_Click(object sender, EventArgs e)
+        {
+            var selectNode = this.tvPendingDownload.SelectedNode;
+            if (selectNode.Name != "pendingNode")
+            {
+                var albumId = selectNode.Name;
+            }
+            else
+            {
+                MessageBox.Show("下载错误", "系统提示");
+            }
+        }
+
+        private void tsmi_downAllAlbum_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tsmi_openAlbum_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tmi_save_list_Click(object sender, EventArgs e)
+        {
+            DownloadHelper.SaveList(this.m_DownloadList);
+
+        }
+
+        private void tmi_load_list_Click(object sender, EventArgs e)
+        {
+
+            OpenFileDialog ofdig = new OpenFileDialog();
+            ofdig.InitialDirectory = Application.StartupPath + "/Download";
+            if (ofdig.ShowDialog() == DialogResult.OK)
+            {
+                var path = ofdig.FileName;
+                this.m_DownloadList = DownloadHelper.LoadList(path);
+
+                AddFileToGridDataView(this.m_DownloadList);
+            }
+
+        }
+ 
+        private void AddFileToGridDataView(List<SynFileInfo> lst)
+        {
+            foreach (var item in lst)
+            {
+                int index = this.m_downlist.Rows.Add();
+                DataGridViewRow row = this.m_downlist.Rows[index];
+
+                  
+                row.Cells["DocId"].Value = item.DocID;
+                row.Cells["Album"].Value = item.Album;
+                //row.Cells["AlbumId"].Value = item.AlbumId;
+                row.Cells["DocName"].Value = item.DocName;
+                row.Cells["FileSize"].Value = item.FileSize;
+                //row.Cells["isComplete"].Value = item.isComplete;
+                //row.Cells["DownPath"].Value = item.DownPath;
+                //row.Cells["SavePath"].Value = item.SavePath;
+                row.Cells["duration"].Value = (item.duration / 60).ToString() + "分钟";
+                item.RowObject = row;
+                //this.m_downlist.Rows.Add(item.RowObject);
+            }
+        }
+
     }
 }
