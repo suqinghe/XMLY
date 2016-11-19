@@ -67,21 +67,10 @@ namespace XMLY
 
             MakeDirectory(fl.DirectoryName);
 
-            if (!File.Exists(fl.FullName))
+            using (StreamWriter sw = File.CreateText(fl.FullName))
             {
-                using (StreamWriter sw = File.CreateText(fl.FullName))
-                {
-                    sw.WriteLine(path);
-                    sw.Close();
-                }
-            }
-            else
-            {
-                using (StreamWriter w = File.AppendText(fl.FullName))
-                {
-                    w.WriteLine(path);
-                    w.Close();
-                }
+                sw.WriteLine(path);
+                sw.Close();
             }
 
         }
@@ -113,9 +102,20 @@ namespace XMLY
 
                     SavePath = path;
                 }
-
             }
             return path;
+        }
+
+        public static string GetSavePath(string albumName)
+        {
+            var rootPath = GetSavePath();
+
+            var path = new DirectoryInfo(string.Format("{0}/{1}", rootPath, albumName));
+
+            if (path.Exists)
+                return path.FullName;
+            else
+                return null;
         }
     }
 }

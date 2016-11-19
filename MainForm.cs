@@ -31,6 +31,9 @@ namespace XMLY
         private string lastAlbum = "";
 
         private string placeHolder = "请在此处输入专辑链接，多个链接请换行";
+
+
+        private bool IsDownload = true;
         #endregion
 
         #region 监测连接状态
@@ -86,6 +89,8 @@ namespace XMLY
         /// <param name="e"></param>
         private void btnDownload_Click(object sender, EventArgs e)
         {
+            this.IsDownload = true;
+
             this.StartNewWork();
         }
 
@@ -150,13 +155,11 @@ namespace XMLY
             SynFileInfo synFileInfo = (SynFileInfo)e.UserState;
             synFileInfo.isComplete = true;
 
-
             var repeatRow = this.m_downlist.Rows.Cast<DataGridViewRow>().FirstOrDefault(a => a.Cells["DocId"].Value.ToString() == synFileInfo.DocID);
             if (repeatRow != null)
             {
                 repeatRow.DefaultCellStyle.ForeColor = Color.Green;
             }
-
 
             //该张专辑全部下载完后，字体变绿
             if (m_DownloadList.Where(a => a.AlbumId == synFileInfo.AlbumId).All(a => a.isComplete))
@@ -183,6 +186,9 @@ namespace XMLY
         /// <returns></returns>
         private SynFileInfo GetNext()
         {
+            if (!IsDownload)
+                return null;
+
             foreach (SynFileInfo current in this.m_DownloadList)
             {
                 if (current.Selected && !current.isComplete)
@@ -203,7 +209,12 @@ namespace XMLY
                 SynFileInfo next = this.GetNext();
                 if (next == null)
                 {
-                    MessageBox.Show("所有文件下载完毕!", "提示", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                    var msg = "所有文件下载完毕!";
+                    if (!IsDownload)
+                    {
+                        msg = "已停止下载";
+                    }
+                    MessageBox.Show(msg, "提示", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                     return;
                 }
 
@@ -229,6 +240,68 @@ namespace XMLY
             }
         }
 
+
+        /// <summary>
+        /// 添加文件到列表
+        /// </summary>
+        /// <param name="lst"></param>
+        private void AddFileToGridDataView(List<SynFileInfo> lst)
+        {
+            foreach (var item in lst)
+            {
+                var repeatRow = this.m_downlist.Rows.Cast<DataGridViewRow>().FirstOrDefault(a => a.Cells["DocId"].Value.ToString() == item.DocID);
+                if (repeatRow != null)
+                    continue;
+
+                int index = this.m_downlist.Rows.Add();
+                DataGridViewRow row = this.m_downlist.Rows[index];
+
+                row.Cells["DocId"].Value = item.DocID;
+                row.Cells["Album"].Value = item.Album;
+                //row.Cells["AlbumId"].Value = item.AlbumId;
+                row.Cells["DocName"].Value = item.DocName;
+                row.Cells["SynProgress"].Value = item.isComplete ? "100%" : "0";
+                //row.Cells["FileSize"].Value = item.FileSize;
+                //row.Cells["isComplete"].Value = item.isComplete;
+                //row.Cells["DownPath"].Value = item.DownPath;
+                //row.Cells["SavePath"].Value = item.SavePath;
+                //row.Cells["duration"].Value = (item.duration / 60).ToString() + "分钟";
+                row.Cells["Selected"].Value = true;
+                item.Selected = true;
+
+                if (item.isComplete)
+                    row.DefaultCellStyle.ForeColor = Color.Green;
+
+                item.RowObject = row;
+                //this.m_downlist.Rows.Add(item.RowObject);
+            }
+        }
+
+        /// <summary>
+        /// 停止下载
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_stop_down_Click(object sender, EventArgs e)
+        {
+            showinfo("已准备停止，下载完当前声音后会自动停止，请耐心等待……");
+            IsDownload = false;
+            DownloadHelper.UpdateList(this.m_DownloadList);
+        }
+
+        /// <summary>
+        /// 保存清单
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_save_list_Click(object sender, EventArgs e)
+        {
+            var path = DownloadHelper.SaveList(this.m_DownloadList);
+
+            if (!string.IsNullOrWhiteSpace(path))
+                MessageBox.Show("列表保存成功，保存路径为：" + path, "列表保存提醒", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        }
 
         #endregion
 
@@ -437,16 +510,19 @@ namespace XMLY
                         {
                             Name = g.Key,
                             AlbumId = g.FirstOrDefault().AlbumId,
-                            IsAllComplete = g.All(a => a.isComplete)
+                            IsAllComplete = g.All(a => a.isComplete),
+                            XmlName = g.FirstOrDefault().XmlName
                         };
 
-            var parentNode = FindPendingNode();
 
+
+            var parentNode = FindPendingNode();
             foreach (var item in items)
             {
-                if (!parentNode.Nodes.ContainsKey(item.AlbumId))
+                var key = string.Format("{0}_{1}", item.AlbumId, item.XmlName);
+                if (!parentNode.Nodes.ContainsKey(key))
                 {
-                    var addNode = parentNode.Nodes.Add(item.AlbumId, item.Name);
+                    var addNode = parentNode.Nodes.Add(key, item.Name);
                     if (item.IsAllComplete)
                         addNode.ForeColor = Color.Green;
                 }
@@ -467,9 +543,10 @@ namespace XMLY
         private void AddToPendingList(SynFileInfo info)
         {
             var parentNode = FindPendingNode();
-            if (!parentNode.Nodes.ContainsKey(info.AlbumId))
+            var key = string.Format("{0}_{1}", info.AlbumId, info.XmlName);
+            if (!parentNode.Nodes.ContainsKey(key))
             {
-                parentNode.Nodes.Add(info.AlbumId, info.Album);
+                parentNode.Nodes.Add(key, info.Album);
             }
         }
 
@@ -559,6 +636,29 @@ namespace XMLY
 
 
         /// <summary>
+        /// 捐赠该软件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tmi_donate_author_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("http://blog.csdn.net/suqingheangle/article/details/53229287");
+
+        }
+
+
+        /// <summary>
+        /// 用户手册
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tmsi_user_guide_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("http://blog.csdn.net/suqingheangle/article/details/53228402");
+        }
+
+
+        /// <summary>
         /// 打开博客链接
         /// 
         /// </summary>
@@ -568,6 +668,19 @@ namespace XMLY
         {
             System.Diagnostics.Process.Start("http://blog.csdn.net/suqingheangle");
         }
+
+
+        /// <summary>
+        /// 版本说明
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tsmi_version_Click(object sender, EventArgs e)
+        {
+
+            MessageBox.Show("当前软件版本为：" + Application.ProductVersion, "软件版本", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
         #endregion
 
         #region 系统设置
@@ -579,6 +692,7 @@ namespace XMLY
         private void tmi_setting_path_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
+
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 var path = dialog.SelectedPath;
@@ -594,7 +708,7 @@ namespace XMLY
         /// <param name="e"></param>
         private void btnOpenExplorer_Click(object sender, EventArgs e)
         {
-            var path = Application.StartupPath;
+            var path = FileHelper.GetSavePath();
             System.Diagnostics.Process.Start("Explorer.exe", path);
         }
 
@@ -619,6 +733,42 @@ namespace XMLY
         {
             this.m_downlist.Rows.Clear();
             this.m_DownloadList.Clear();
+        }
+
+
+        /// <summary>
+        /// 保存列表
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tmi_save_list_Click(object sender, EventArgs e)
+        {
+            var path = DownloadHelper.SaveList(this.m_DownloadList);
+
+            if (!string.IsNullOrWhiteSpace(path))
+                MessageBox.Show("列表保存成功，保存路径为：" + path, "列表保存提醒", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// 加载列表
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tmi_load_list_Click(object sender, EventArgs e)
+        {
+
+            OpenFileDialog ofdig = new OpenFileDialog();
+            ofdig.InitialDirectory = Application.StartupPath + "/Download";
+            if (ofdig.ShowDialog() == DialogResult.OK)
+            {
+                var path = ofdig.FileName;
+                this.m_DownloadList = DownloadHelper.LoadList(path);
+
+                AddFileToGridDataView(this.m_DownloadList);
+
+                AddToPendingList(this.m_DownloadList);
+            }
+
         }
 
         #endregion
@@ -655,15 +805,7 @@ namespace XMLY
                 TreeNode CurrentNode = tvPendingDownload.GetNodeAt(ClickPoint);
                 if (CurrentNode != null)//判断你点的是不是一个节点
                 {
-                    switch (CurrentNode.Name)//根据不同节点显示不同的右键菜单，当然你可以让它显示一样的菜单
-                    {
-                        case "pendingDown":
-                            CurrentNode.ContextMenuStrip = contextMenuStrip2;
-                            break;
-                        default:
-                            CurrentNode.ContextMenuStrip = contextMenuStrip1;
-                            break;
-                    }
+                    CurrentNode.ContextMenuStrip = contextMenuStrip1;
 
                     CurrentNode.ContextMenuStrip.Show();
 
@@ -673,14 +815,39 @@ namespace XMLY
         }
 
 
-        #endregion
-
+        /// <summary>
+        /// 下载专辑
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void tsmi_downAlbum_Click(object sender, EventArgs e)
         {
             var selectNode = this.tvPendingDownload.SelectedNode;
             if (selectNode.Name != "pendingNode")
             {
                 var albumId = selectNode.Name;
+
+                var lst = DownloadHelper.LoadAlbumList(albumId);
+
+                if (lst != null)
+                {
+                    this.m_DownloadList = lst;
+
+                    if (lst.All(a => a.isComplete))
+                        MessageBox.Show("该专辑已全部下载完毕", "系统提示");
+                    else
+                    {
+                        this.m_downlist.Rows.Clear();
+                        this.AddFileToGridDataView(lst);
+
+                        AddFileToGridDataView(lst);
+                    }
+
+                }
+                else
+                {
+                    MessageBox.Show("找不到该专辑", "系统提示");
+                }
             }
             else
             {
@@ -688,81 +855,30 @@ namespace XMLY
             }
         }
 
-        private void tsmi_downAllAlbum_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tsmi_openAlbum_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tmi_save_list_Click(object sender, EventArgs e)
-        {
-            var path = DownloadHelper.SaveList(this.m_DownloadList);
-
-            if (!string.IsNullOrWhiteSpace(path))
-                MessageBox.Show("列表保存成功，保存路径为：" + path, "列表保存提醒", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void tmi_load_list_Click(object sender, EventArgs e)
-        {
-
-            OpenFileDialog ofdig = new OpenFileDialog();
-            ofdig.InitialDirectory = Application.StartupPath + "/Download";
-            if (ofdig.ShowDialog() == DialogResult.OK)
-            {
-                var path = ofdig.FileName;
-                this.m_DownloadList = DownloadHelper.LoadList(path);
-
-                AddFileToGridDataView(this.m_DownloadList);
-
-                AddToPendingList(this.m_DownloadList);
-            }
-
-        }
-
-        private void AddFileToGridDataView(List<SynFileInfo> lst)
-        {
-            foreach (var item in lst)
-            {
-                var repeatRow = this.m_downlist.Rows.Cast<DataGridViewRow>().FirstOrDefault(a => a.Cells["DocId"].Value.ToString() == item.DocID);
-                if (repeatRow != null)
-                    continue;
-
-                int index = this.m_downlist.Rows.Add();
-                DataGridViewRow row = this.m_downlist.Rows[index];
-
-                row.Cells["DocId"].Value = item.DocID;
-                row.Cells["Album"].Value = item.Album;
-                //row.Cells["AlbumId"].Value = item.AlbumId;
-                row.Cells["DocName"].Value = item.DocName;
-                row.Cells["SynProgress"].Value = item.isComplete ? "100%" : "0";
-                //row.Cells["FileSize"].Value = item.FileSize;
-                //row.Cells["isComplete"].Value = item.isComplete;
-                //row.Cells["DownPath"].Value = item.DownPath;
-                //row.Cells["SavePath"].Value = item.SavePath;
-                //row.Cells["duration"].Value = (item.duration / 60).ToString() + "分钟";
-                row.Cells["Selected"].Value = true;
-                item.Selected = true;
-
-                if (item.isComplete)
-                    row.DefaultCellStyle.ForeColor = Color.Green;
-
-                item.RowObject = row;
-                //this.m_downlist.Rows.Add(item.RowObject);
-            }
-        }
 
         /// <summary>
-        /// 捐赠该软件
+        /// 打开专辑
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void tmi_donate_author_Click(object sender, EventArgs e)
+        private void tsmi_open_album_Click(object sender, EventArgs e)
         {
+            var selectNode = this.tvPendingDownload.SelectedNode;
+            if (selectNode != null)
+            {
+                var path = FileHelper.GetSavePath(selectNode.Text);
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    MessageBox.Show("该专辑尚未下载或者目录不对，请重新确认", "系统提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
 
+                    System.Diagnostics.Process.Start("Explorer.exe", path);
+                }
+            }
         }
+
+        #endregion
     }
 }

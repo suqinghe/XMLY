@@ -11,7 +11,7 @@ namespace XMLY
     {
         public static void WriteLog(string content)
         {
-            var path = string.Format("{0}/{1}/{2}", Application.StartupPath, DateTime.Now.ToString("yyyy-MM-dd"), "Error.txt");
+            var path = string.Format("{0}/LogFiles/{1}_Error.txt", Application.StartupPath, DateTime.Now.ToString("yyyy-MM-dd"));
 
             var fl = new FileInfo(path);
             if (!fl.Directory.Exists)

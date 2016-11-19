@@ -84,9 +84,14 @@ namespace XMLY
 
 
         // 喜马拉雅音频下载器.Form1
-        public static List<SynFileInfo> LoadList(string xmlPath)
+        public static List<SynFileInfo> LoadList(string xmlPath, string xmlName = null)
         {
             var lst = new List<SynFileInfo>();
+
+            if (string.IsNullOrWhiteSpace(xmlPath) && !string.IsNullOrWhiteSpace(xmlName))
+            {
+                xmlPath = string.Format("{0}/{1}/{2}.xml", Application.StartupPath, "Download", xmlName);
+            }
 
             try
             {
@@ -123,9 +128,30 @@ namespace XMLY
 
                 var subItems = LoadList(fullPath);
 
-                subItems.Where(a => a.AlbumId == albumId).ToList().ForEach(a => a.isComplete = true);
+                var completeIds = m_DownloadList.Where(a => a.isComplete).Select(a => a.DocID).ToList();
+
+                subItems.Where(a => a.AlbumId == albumId && completeIds.Contains(a.DocID)).ToList().ForEach(a => a.isComplete = true);
 
                 SaveList(subItems, fullPath);
+            }
+        }
+
+        internal static List<SynFileInfo> LoadAlbumList(string albumId)
+        {
+            try
+            {
+                var albId = albumId.Split('_')[0].ToString();
+                var xmlId = albumId.Split('_')[1].ToString();
+
+                var allList = LoadList(string.Empty, xmlId);
+
+                var ablumList = allList.Where(a => a.AlbumId == albId).ToList();
+                return ablumList;
+            }
+            catch (Exception exp)
+            {
+                LogHelper.WriteLog("加载专辑列表失败：" + exp.Message);
+                return null;
             }
         }
     }
