@@ -32,21 +32,13 @@ namespace XMLY
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("专辑列表");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("专辑列表");
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.label1 = new System.Windows.Forms.Label();
             this.txtUrl = new System.Windows.Forms.TextBox();
             this.lblInfo = new System.Windows.Forms.Label();
             this.btnDownload = new System.Windows.Forms.Button();
             this.m_downlist = new System.Windows.Forms.DataGridView();
-            this.Selected = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.DocId = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Album = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DocName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.duration = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.FileSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.SynSpeed = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.SynProgress = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btnAnalyze = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -62,7 +54,9 @@ namespace XMLY
             this.关于ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tmi_about_author = new System.Windows.Forms.ToolStripMenuItem();
             this.tmi_about_system = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmi_version = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.tmsi_user_guide = new System.Windows.Forms.ToolStripMenuItem();
             this.tml_author_blog = new System.Windows.Forms.ToolStripMenuItem();
             this.tmi_donate_author = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -73,13 +67,25 @@ namespace XMLY
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmi_downAlbum = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmi_open_album = new System.Windows.Forms.ToolStripMenuItem();
-            this.tmsi_user_guide = new System.Windows.Forms.ToolStripMenuItem();
             this.btn_stop_down = new System.Windows.Forms.Button();
             this.btn_save_list = new System.Windows.Forms.Button();
-            this.tsmi_version = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmi_select = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmi_cancle_selected = new System.Windows.Forms.ToolStripMenuItem();
+            this.Selected = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.DocId = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Album = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DocName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.duration = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.FileSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.SynSpeed = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.SynProgress = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tsmi_select_all = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmi_toggle_select = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.m_downlist)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
+            this.contextMenuStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -145,7 +151,6 @@ namespace XMLY
             this.SynSpeed,
             this.SynProgress});
             this.m_downlist.Location = new System.Drawing.Point(187, 186);
-            this.m_downlist.MultiSelect = false;
             this.m_downlist.Name = "m_downlist";
             this.m_downlist.ReadOnly = true;
             this.m_downlist.RowHeadersVisible = false;
@@ -154,9 +159,277 @@ namespace XMLY
             this.m_downlist.Size = new System.Drawing.Size(776, 450);
             this.m_downlist.TabIndex = 5;
             this.m_downlist.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.m_downlist_CellContentClick);
+            this.m_downlist.MouseClick += new System.Windows.Forms.MouseEventHandler(this.m_downlist_MouseClick);
+            // 
+            // btnAnalyze
+            // 
+            this.btnAnalyze.Location = new System.Drawing.Point(872, 38);
+            this.btnAnalyze.Name = "btnAnalyze";
+            this.btnAnalyze.Size = new System.Drawing.Size(75, 23);
+            this.btnAnalyze.TabIndex = 6;
+            this.btnAnalyze.Text = "分析并添加";
+            this.btnAnalyze.UseVisualStyleBackColor = true;
+            this.btnAnalyze.Click += new System.EventHandler(this.btnAnalyze_Click);
+            // 
+            // btnClear
+            // 
+            this.btnClear.Location = new System.Drawing.Point(872, 154);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Size = new System.Drawing.Size(75, 23);
+            this.btnClear.TabIndex = 7;
+            this.btnClear.Text = "清空列表";
+            this.btnClear.UseVisualStyleBackColor = true;
+            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.设置ToolStripMenuItem,
+            this.关于ToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(984, 25);
+            this.menuStrip1.TabIndex = 9;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // 设置ToolStripMenuItem
+            // 
+            this.设置ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tmi_setting_path,
+            this.tmi_open_explorer,
+            this.toolStripSeparator4,
+            this.tmi_save_list,
+            this.tmi_load_list,
+            this.toolStripSeparator1,
+            this.tmi_exit,
+            this.toolStripSeparator3});
+            this.设置ToolStripMenuItem.Image = global::XMLY.Properties.Resources.setting;
+            this.设置ToolStripMenuItem.Name = "设置ToolStripMenuItem";
+            this.设置ToolStripMenuItem.Size = new System.Drawing.Size(60, 21);
+            this.设置ToolStripMenuItem.Text = "设置";
+            // 
+            // tmi_setting_path
+            // 
+            this.tmi_setting_path.Name = "tmi_setting_path";
+            this.tmi_setting_path.Size = new System.Drawing.Size(148, 22);
+            this.tmi_setting_path.Text = "下载路径设置";
+            this.tmi_setting_path.Click += new System.EventHandler(this.tmi_setting_path_Click);
+            // 
+            // tmi_open_explorer
+            // 
+            this.tmi_open_explorer.Name = "tmi_open_explorer";
+            this.tmi_open_explorer.Size = new System.Drawing.Size(148, 22);
+            this.tmi_open_explorer.Text = "打开下载目录";
+            this.tmi_open_explorer.Click += new System.EventHandler(this.btnOpenExplorer_Click);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(145, 6);
+            // 
+            // tmi_save_list
+            // 
+            this.tmi_save_list.Name = "tmi_save_list";
+            this.tmi_save_list.Size = new System.Drawing.Size(148, 22);
+            this.tmi_save_list.Text = "保存列表";
+            this.tmi_save_list.Click += new System.EventHandler(this.tmi_save_list_Click);
+            // 
+            // tmi_load_list
+            // 
+            this.tmi_load_list.Name = "tmi_load_list";
+            this.tmi_load_list.Size = new System.Drawing.Size(148, 22);
+            this.tmi_load_list.Text = "加载列表";
+            this.tmi_load_list.Click += new System.EventHandler(this.tmi_load_list_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(145, 6);
+            // 
+            // tmi_exit
+            // 
+            this.tmi_exit.Name = "tmi_exit";
+            this.tmi_exit.Size = new System.Drawing.Size(148, 22);
+            this.tmi_exit.Text = "退出系统";
+            this.tmi_exit.Click += new System.EventHandler(this.tmi_exit_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(145, 6);
+            // 
+            // 关于ToolStripMenuItem
+            // 
+            this.关于ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tmi_about_author,
+            this.tmi_about_system,
+            this.tsmi_version,
+            this.toolStripSeparator5,
+            this.tmsi_user_guide,
+            this.tml_author_blog,
+            this.tmi_donate_author,
+            this.toolStripSeparator2,
+            this.tmi_license,
+            this.tmi_contact_us});
+            this.关于ToolStripMenuItem.Image = global::XMLY.Properties.Resources.about;
+            this.关于ToolStripMenuItem.Name = "关于ToolStripMenuItem";
+            this.关于ToolStripMenuItem.Size = new System.Drawing.Size(60, 21);
+            this.关于ToolStripMenuItem.Text = "关于";
+            // 
+            // tmi_about_author
+            // 
+            this.tmi_about_author.Name = "tmi_about_author";
+            this.tmi_about_author.Size = new System.Drawing.Size(124, 22);
+            this.tmi_about_author.Text = "关于作者";
+            this.tmi_about_author.Click += new System.EventHandler(this.tmi_about_author_Click);
+            // 
+            // tmi_about_system
+            // 
+            this.tmi_about_system.Name = "tmi_about_system";
+            this.tmi_about_system.Size = new System.Drawing.Size(124, 22);
+            this.tmi_about_system.Text = "关于软件";
+            this.tmi_about_system.Click += new System.EventHandler(this.tmi_about_system_Click);
+            // 
+            // tsmi_version
+            // 
+            this.tsmi_version.Name = "tsmi_version";
+            this.tsmi_version.Size = new System.Drawing.Size(124, 22);
+            this.tsmi_version.Text = "版本说明";
+            this.tsmi_version.Click += new System.EventHandler(this.tsmi_version_Click);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(121, 6);
+            // 
+            // tmsi_user_guide
+            // 
+            this.tmsi_user_guide.Name = "tmsi_user_guide";
+            this.tmsi_user_guide.Size = new System.Drawing.Size(124, 22);
+            this.tmsi_user_guide.Text = "用户手册";
+            this.tmsi_user_guide.Click += new System.EventHandler(this.tmsi_user_guide_Click);
+            // 
+            // tml_author_blog
+            // 
+            this.tml_author_blog.Name = "tml_author_blog";
+            this.tml_author_blog.Size = new System.Drawing.Size(124, 22);
+            this.tml_author_blog.Text = "作者博客";
+            this.tml_author_blog.Click += new System.EventHandler(this.tml_author_blog_Click);
+            // 
+            // tmi_donate_author
+            // 
+            this.tmi_donate_author.Name = "tmi_donate_author";
+            this.tmi_donate_author.Size = new System.Drawing.Size(124, 22);
+            this.tmi_donate_author.Text = "打赏作者";
+            this.tmi_donate_author.Click += new System.EventHandler(this.tmi_donate_author_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(121, 6);
+            // 
+            // tmi_license
+            // 
+            this.tmi_license.Name = "tmi_license";
+            this.tmi_license.Size = new System.Drawing.Size(124, 22);
+            this.tmi_license.Text = "免责声明";
+            this.tmi_license.Click += new System.EventHandler(this.tmi_license_Click);
+            // 
+            // tmi_contact_us
+            // 
+            this.tmi_contact_us.Name = "tmi_contact_us";
+            this.tmi_contact_us.Size = new System.Drawing.Size(124, 22);
+            this.tmi_contact_us.Text = "联系我们";
+            this.tmi_contact_us.Click += new System.EventHandler(this.tmi_contact_us_Click);
+            // 
+            // tvPendingDownload
+            // 
+            this.tvPendingDownload.Location = new System.Drawing.Point(12, 42);
+            this.tvPendingDownload.Name = "tvPendingDownload";
+            treeNode3.Name = "pendingDown";
+            treeNode3.Text = "专辑列表";
+            this.tvPendingDownload.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
+            treeNode3});
+            this.tvPendingDownload.Size = new System.Drawing.Size(139, 594);
+            this.tvPendingDownload.TabIndex = 10;
+            this.tvPendingDownload.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvPendingDownload_NodeMouseClick);
+            this.tvPendingDownload.DoubleClick += new System.EventHandler(this.tvPendingDownload_DoubleClick);
+            // 
+            // imageList1
+            // 
+            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageList1.Images.SetKeyName(0, "directy.png");
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmi_downAlbum,
+            this.tsmi_open_album});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(137, 48);
+            // 
+            // tsmi_downAlbum
+            // 
+            this.tsmi_downAlbum.Name = "tsmi_downAlbum";
+            this.tsmi_downAlbum.Size = new System.Drawing.Size(136, 22);
+            this.tsmi_downAlbum.Text = "下载该专辑";
+            this.tsmi_downAlbum.Click += new System.EventHandler(this.tsmi_downAlbum_Click);
+            // 
+            // tsmi_open_album
+            // 
+            this.tsmi_open_album.Name = "tsmi_open_album";
+            this.tsmi_open_album.Size = new System.Drawing.Size(136, 22);
+            this.tsmi_open_album.Text = "打开该专辑";
+            this.tsmi_open_album.Click += new System.EventHandler(this.tsmi_open_album_Click);
+            // 
+            // btn_stop_down
+            // 
+            this.btn_stop_down.Location = new System.Drawing.Point(872, 125);
+            this.btn_stop_down.Name = "btn_stop_down";
+            this.btn_stop_down.Size = new System.Drawing.Size(75, 23);
+            this.btn_stop_down.TabIndex = 11;
+            this.btn_stop_down.Text = "停止下载";
+            this.btn_stop_down.UseVisualStyleBackColor = true;
+            this.btn_stop_down.Click += new System.EventHandler(this.btn_stop_down_Click);
+            // 
+            // btn_save_list
+            // 
+            this.btn_save_list.Location = new System.Drawing.Point(872, 67);
+            this.btn_save_list.Name = "btn_save_list";
+            this.btn_save_list.Size = new System.Drawing.Size(75, 23);
+            this.btn_save_list.TabIndex = 12;
+            this.btn_save_list.Text = "保存列表";
+            this.btn_save_list.UseVisualStyleBackColor = true;
+            this.btn_save_list.Click += new System.EventHandler(this.btn_save_list_Click);
+            // 
+            // contextMenuStrip2
+            // 
+            this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmi_select,
+            this.tsmi_cancle_selected,
+            this.tsmi_select_all,
+            this.tsmi_toggle_select});
+            this.contextMenuStrip2.Name = "contextMenuStrip2";
+            this.contextMenuStrip2.Size = new System.Drawing.Size(101, 92);
+            // 
+            // tsmi_select
+            // 
+            this.tsmi_select.Name = "tsmi_select";
+            this.tsmi_select.Size = new System.Drawing.Size(100, 22);
+            this.tsmi_select.Text = "选中";
+            this.tsmi_select.Click += new System.EventHandler(this.tsmi_select_Click);
+            // 
+            // tsmi_cancle_selected
+            // 
+            this.tsmi_cancle_selected.Name = "tsmi_cancle_selected";
+            this.tsmi_cancle_selected.Size = new System.Drawing.Size(152, 22);
+            this.tsmi_cancle_selected.Text = "取消";
+            this.tsmi_cancle_selected.Click += new System.EventHandler(this.tsmi_cancle_selected_Click);
             // 
             // Selected
             // 
+            this.Selected.ContextMenuStrip = this.contextMenuStrip2;
             this.Selected.FillWeight = 26.892F;
             this.Selected.HeaderText = "选择";
             this.Selected.Name = "Selected";
@@ -211,247 +484,19 @@ namespace XMLY
             this.SynProgress.Name = "SynProgress";
             this.SynProgress.ReadOnly = true;
             // 
-            // btnAnalyze
+            // tsmi_select_all
             // 
-            this.btnAnalyze.Location = new System.Drawing.Point(872, 38);
-            this.btnAnalyze.Name = "btnAnalyze";
-            this.btnAnalyze.Size = new System.Drawing.Size(75, 23);
-            this.btnAnalyze.TabIndex = 6;
-            this.btnAnalyze.Text = "分析并添加";
-            this.btnAnalyze.UseVisualStyleBackColor = true;
-            this.btnAnalyze.Click += new System.EventHandler(this.btnAnalyze_Click);
+            this.tsmi_select_all.Name = "tsmi_select_all";
+            this.tsmi_select_all.Size = new System.Drawing.Size(152, 22);
+            this.tsmi_select_all.Text = "全选";
+            this.tsmi_select_all.Click += new System.EventHandler(this.tsmi_select_all_Click);
             // 
-            // btnClear
+            // tsmi_toggle_select
             // 
-            this.btnClear.Location = new System.Drawing.Point(872, 154);
-            this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(75, 23);
-            this.btnClear.TabIndex = 7;
-            this.btnClear.Text = "清空列表";
-            this.btnClear.UseVisualStyleBackColor = true;
-            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
-            // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.设置ToolStripMenuItem,
-            this.关于ToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(984, 25);
-            this.menuStrip1.TabIndex = 9;
-            this.menuStrip1.Text = "menuStrip1";
-            // 
-            // 设置ToolStripMenuItem
-            // 
-            this.设置ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tmi_setting_path,
-            this.tmi_open_explorer,
-            this.toolStripSeparator4,
-            this.tmi_save_list,
-            this.tmi_load_list,
-            this.toolStripSeparator1,
-            this.tmi_exit,
-            this.toolStripSeparator3});
-            this.设置ToolStripMenuItem.Image = global::XMLY.Properties.Resources.setting;
-            this.设置ToolStripMenuItem.Name = "设置ToolStripMenuItem";
-            this.设置ToolStripMenuItem.Size = new System.Drawing.Size(60, 21);
-            this.设置ToolStripMenuItem.Text = "设置";
-            // 
-            // tmi_setting_path
-            // 
-            this.tmi_setting_path.Name = "tmi_setting_path";
-            this.tmi_setting_path.Size = new System.Drawing.Size(152, 22);
-            this.tmi_setting_path.Text = "下载路径设置";
-            this.tmi_setting_path.Click += new System.EventHandler(this.tmi_setting_path_Click);
-            // 
-            // tmi_open_explorer
-            // 
-            this.tmi_open_explorer.Name = "tmi_open_explorer";
-            this.tmi_open_explorer.Size = new System.Drawing.Size(152, 22);
-            this.tmi_open_explorer.Text = "打开下载目录";
-            this.tmi_open_explorer.Click += new System.EventHandler(this.btnOpenExplorer_Click);
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(149, 6);
-            // 
-            // tmi_save_list
-            // 
-            this.tmi_save_list.Name = "tmi_save_list";
-            this.tmi_save_list.Size = new System.Drawing.Size(152, 22);
-            this.tmi_save_list.Text = "保存列表";
-            this.tmi_save_list.Click += new System.EventHandler(this.tmi_save_list_Click);
-            // 
-            // tmi_load_list
-            // 
-            this.tmi_load_list.Name = "tmi_load_list";
-            this.tmi_load_list.Size = new System.Drawing.Size(152, 22);
-            this.tmi_load_list.Text = "加载列表";
-            this.tmi_load_list.Click += new System.EventHandler(this.tmi_load_list_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
-            // 
-            // tmi_exit
-            // 
-            this.tmi_exit.Name = "tmi_exit";
-            this.tmi_exit.Size = new System.Drawing.Size(152, 22);
-            this.tmi_exit.Text = "退出系统";
-            this.tmi_exit.Click += new System.EventHandler(this.tmi_exit_Click);
-            // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(149, 6);
-            // 
-            // 关于ToolStripMenuItem
-            // 
-            this.关于ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tmi_about_author,
-            this.tmi_about_system,
-            this.tsmi_version,
-            this.toolStripSeparator5,
-            this.tmsi_user_guide,
-            this.tml_author_blog,
-            this.tmi_donate_author,
-            this.toolStripSeparator2,
-            this.tmi_license,
-            this.tmi_contact_us});
-            this.关于ToolStripMenuItem.Image = global::XMLY.Properties.Resources.about;
-            this.关于ToolStripMenuItem.Name = "关于ToolStripMenuItem";
-            this.关于ToolStripMenuItem.Size = new System.Drawing.Size(60, 21);
-            this.关于ToolStripMenuItem.Text = "关于";
-            // 
-            // tmi_about_author
-            // 
-            this.tmi_about_author.Name = "tmi_about_author";
-            this.tmi_about_author.Size = new System.Drawing.Size(152, 22);
-            this.tmi_about_author.Text = "关于作者";
-            this.tmi_about_author.Click += new System.EventHandler(this.tmi_about_author_Click);
-            // 
-            // tmi_about_system
-            // 
-            this.tmi_about_system.Name = "tmi_about_system";
-            this.tmi_about_system.Size = new System.Drawing.Size(152, 22);
-            this.tmi_about_system.Text = "关于软件";
-            this.tmi_about_system.Click += new System.EventHandler(this.tmi_about_system_Click);
-            // 
-            // toolStripSeparator5
-            // 
-            this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(149, 6);
-            // 
-            // tml_author_blog
-            // 
-            this.tml_author_blog.Name = "tml_author_blog";
-            this.tml_author_blog.Size = new System.Drawing.Size(152, 22);
-            this.tml_author_blog.Text = "作者博客";
-            this.tml_author_blog.Click += new System.EventHandler(this.tml_author_blog_Click);
-            // 
-            // tmi_donate_author
-            // 
-            this.tmi_donate_author.Name = "tmi_donate_author";
-            this.tmi_donate_author.Size = new System.Drawing.Size(152, 22);
-            this.tmi_donate_author.Text = "打赏作者";
-            this.tmi_donate_author.Click += new System.EventHandler(this.tmi_donate_author_Click);
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
-            // 
-            // tmi_license
-            // 
-            this.tmi_license.Name = "tmi_license";
-            this.tmi_license.Size = new System.Drawing.Size(152, 22);
-            this.tmi_license.Text = "免责声明";
-            this.tmi_license.Click += new System.EventHandler(this.tmi_license_Click);
-            // 
-            // tmi_contact_us
-            // 
-            this.tmi_contact_us.Name = "tmi_contact_us";
-            this.tmi_contact_us.Size = new System.Drawing.Size(152, 22);
-            this.tmi_contact_us.Text = "联系我们";
-            this.tmi_contact_us.Click += new System.EventHandler(this.tmi_contact_us_Click);
-            // 
-            // tvPendingDownload
-            // 
-            this.tvPendingDownload.Location = new System.Drawing.Point(12, 42);
-            this.tvPendingDownload.Name = "tvPendingDownload";
-            treeNode1.Name = "pendingDown";
-            treeNode1.Text = "专辑列表";
-            this.tvPendingDownload.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1});
-            this.tvPendingDownload.Size = new System.Drawing.Size(139, 594);
-            this.tvPendingDownload.TabIndex = 10;
-            this.tvPendingDownload.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvPendingDownload_NodeMouseClick);
-            this.tvPendingDownload.DoubleClick += new System.EventHandler(this.tvPendingDownload_DoubleClick);
-            // 
-            // imageList1
-            // 
-            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
-            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList1.Images.SetKeyName(0, "directy.png");
-            // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmi_downAlbum,
-            this.tsmi_open_album});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(137, 48);
-            // 
-            // tsmi_downAlbum
-            // 
-            this.tsmi_downAlbum.Name = "tsmi_downAlbum";
-            this.tsmi_downAlbum.Size = new System.Drawing.Size(136, 22);
-            this.tsmi_downAlbum.Text = "下载该专辑";
-            this.tsmi_downAlbum.Click += new System.EventHandler(this.tsmi_downAlbum_Click);
-            // 
-            // tsmi_open_album
-            // 
-            this.tsmi_open_album.Name = "tsmi_open_album";
-            this.tsmi_open_album.Size = new System.Drawing.Size(136, 22);
-            this.tsmi_open_album.Text = "打开该专辑";
-            this.tsmi_open_album.Click += new System.EventHandler(this.tsmi_open_album_Click);
-            // 
-            // tmsi_user_guide
-            // 
-            this.tmsi_user_guide.Name = "tmsi_user_guide";
-            this.tmsi_user_guide.Size = new System.Drawing.Size(152, 22);
-            this.tmsi_user_guide.Text = "用户手册";
-            this.tmsi_user_guide.Click += new System.EventHandler(this.tmsi_user_guide_Click);
-            // 
-            // btn_stop_down
-            // 
-            this.btn_stop_down.Location = new System.Drawing.Point(872, 125);
-            this.btn_stop_down.Name = "btn_stop_down";
-            this.btn_stop_down.Size = new System.Drawing.Size(75, 23);
-            this.btn_stop_down.TabIndex = 11;
-            this.btn_stop_down.Text = "停止下载";
-            this.btn_stop_down.UseVisualStyleBackColor = true;
-            this.btn_stop_down.Click += new System.EventHandler(this.btn_stop_down_Click);
-            // 
-            // btn_save_list
-            // 
-            this.btn_save_list.Location = new System.Drawing.Point(872, 67);
-            this.btn_save_list.Name = "btn_save_list";
-            this.btn_save_list.Size = new System.Drawing.Size(75, 23);
-            this.btn_save_list.TabIndex = 12;
-            this.btn_save_list.Text = "保存列表";
-            this.btn_save_list.UseVisualStyleBackColor = true;
-            this.btn_save_list.Click += new System.EventHandler(this.btn_save_list_Click);
-            // 
-            // tsmi_version
-            // 
-            this.tsmi_version.Name = "tsmi_version";
-            this.tsmi_version.Size = new System.Drawing.Size(152, 22);
-            this.tsmi_version.Text = "版本说明";
-            this.tsmi_version.Click += new System.EventHandler(this.tsmi_version_Click);
+            this.tsmi_toggle_select.Name = "tsmi_toggle_select";
+            this.tsmi_toggle_select.Size = new System.Drawing.Size(152, 22);
+            this.tsmi_toggle_select.Text = "反选";
+            this.tsmi_toggle_select.Click += new System.EventHandler(this.tsmi_toggle_select_Click);
             // 
             // MainForm
             // 
@@ -479,6 +524,7 @@ namespace XMLY
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.contextMenuStrip1.ResumeLayout(false);
+            this.contextMenuStrip2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -493,14 +539,6 @@ namespace XMLY
         private System.Windows.Forms.DataGridView m_downlist;
         private System.Windows.Forms.Button btnAnalyze;
         private Button btnClear;
-        private DataGridViewCheckBoxColumn Selected;
-        private DataGridViewTextBoxColumn DocId;
-        private DataGridViewTextBoxColumn Album;
-        private DataGridViewTextBoxColumn DocName;
-        private DataGridViewTextBoxColumn duration;
-        private DataGridViewTextBoxColumn FileSize;
-        private DataGridViewTextBoxColumn SynSpeed;
-        private DataGridViewTextBoxColumn SynProgress;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem 设置ToolStripMenuItem;
         private ToolStripMenuItem tmi_setting_path;
@@ -529,6 +567,19 @@ namespace XMLY
         private Button btn_stop_down;
         private Button btn_save_list;
         private ToolStripMenuItem tsmi_version;
+        private ContextMenuStrip contextMenuStrip2;
+        private ToolStripMenuItem tsmi_select;
+        private DataGridViewCheckBoxColumn Selected;
+        private ToolStripMenuItem tsmi_cancle_selected;
+        private DataGridViewTextBoxColumn DocId;
+        private DataGridViewTextBoxColumn Album;
+        private DataGridViewTextBoxColumn DocName;
+        private DataGridViewTextBoxColumn duration;
+        private DataGridViewTextBoxColumn FileSize;
+        private DataGridViewTextBoxColumn SynSpeed;
+        private DataGridViewTextBoxColumn SynProgress;
+        private ToolStripMenuItem tsmi_select_all;
+        private ToolStripMenuItem tsmi_toggle_select;
     }
 }
 

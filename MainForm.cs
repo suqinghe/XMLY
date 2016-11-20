@@ -631,7 +631,7 @@ namespace XMLY
         /// <param name="e"></param>
         private void tmi_contact_us_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("作者很忙的，只留下了如下联系方式：\r\n邮箱：suqingheangle@163.com\r\n博客：http://blog.cdsn.net/suqingheangle \r\nGithub：https://github.com/suqinghe \r\n\r\n--有态度的Coder", "联系我们", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("作者很忙的，只留下了如下联系方式：\r\n邮箱：suqingheangle@163.com\r\n博客：http://blog.cdsn.net/suqingheangle \r\n\r\n--有态度的Coder", "联系我们", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
 
@@ -880,5 +880,75 @@ namespace XMLY
         }
 
         #endregion
+
+        private void m_downlist_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)//判断你点的是不是右键
+            {
+                this.m_downlist.ContextMenuStrip = contextMenuStrip2;
+                this.m_downlist.ContextMenuStrip.Show();
+            }
+        }
+
+        private void tsmi_select_Click(object sender, EventArgs e)
+        {
+            var selectedNode = this.m_downlist.SelectedRows;
+
+            var selectIds = new List<string>();
+
+            foreach (DataGridViewRow row in selectedNode)
+            {
+                row.Cells["Selected"].Value = true;
+
+                var docId = row.Cells["DocId"].Value.ToString();
+
+                selectIds.Add(docId);
+            }
+
+            //更新选择状态
+            this.m_DownloadList.Where(a => selectIds.Contains(a.DocID)).ToList().ForEach(a => a.Selected = true);
+        }
+
+        private void tsmi_cancle_selected_Click(object sender, EventArgs e)
+        {
+            var selectedNode = this.m_downlist.SelectedRows;
+
+            var selectIds = new List<string>();
+
+            foreach (DataGridViewRow row in selectedNode)
+            {
+                row.Cells["Selected"].Value = false;
+
+                var docId = row.Cells["DocId"].Value.ToString();
+
+                selectIds.Add(docId);
+            }
+
+            //更新选择状态
+            this.m_DownloadList.Where(a => selectIds.Contains(a.DocID)).ToList().ForEach(a => a.Selected = false);
+        }
+
+        private void tsmi_select_all_Click(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow row in this.m_downlist.Rows)
+            {
+                row.Cells["Selected"].Value = true;
+            }
+
+            this.m_DownloadList.ForEach(a => a.Selected = true);
+        }
+
+        private void tsmi_toggle_select_Click(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow row in this.m_downlist.Rows)
+            {
+                var selectValue = row.Cells["Selected"].Value;
+                var boolValue = selectValue.ToString().ToLower().Equals("true");
+                row.Cells["Selected"].Value = !boolValue;
+
+                var docId = row.Cells["DocId"].Value.ToString();
+                this.m_DownloadList.FirstOrDefault(a => a.DocID == docId).Selected = !boolValue;
+            }
+        }
     }
 }

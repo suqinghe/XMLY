@@ -54,14 +54,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="XMLY.exe" size="136632">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="XMLY.exe" size="139192">
       <assemblyIdentity name="XMLY" version="1.5.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>6uSSkNXJK7H7Jv+dLHek0vMyFyk=</dsig:DigestValue>
+        <dsig:DigestValue>RnFtz/6B2bwXZI6qdP72wzjoYsw=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
