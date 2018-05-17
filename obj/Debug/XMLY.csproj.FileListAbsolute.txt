@@ -43,3 +43,17 @@ F:\工作资料\喜马拉雅\XMLY\obj\Debug\XMLY.exe.manifest
 F:\工作资料\喜马拉雅\XMLY\obj\Debug\XMLY.application
 F:\工作资料\喜马拉雅\XMLY\obj\Debug\XMLY.exe
 F:\工作资料\喜马拉雅\XMLY\obj\Debug\XMLY.pdb
+D:\Tidebuy\Tasks\2018-05-17_XMLY\XMLY-master\obj\Debug\XMLY.MainForm.resources
+D:\Tidebuy\Tasks\2018-05-17_XMLY\XMLY-master\obj\Debug\XMLY.Properties.Resources.resources
+D:\Tidebuy\Tasks\2018-05-17_XMLY\XMLY-master\obj\Debug\XMLY.csproj.GenerateResource.Cache
+D:\Tidebuy\Tasks\2018-05-17_XMLY\XMLY-master\obj\Debug\XMLY.csproj.CoreCompileInputs.cache
+D:\Tidebuy\Tasks\2018-05-17_XMLY\XMLY-master\obj\Debug\XMLY.exe
+D:\Tidebuy\Tasks\2018-05-17_XMLY\XMLY-master\obj\Debug\XMLY.pdb
+D:\Tidebuy\Tasks\2018-05-17_XMLY\XMLY-master\bin\Debug\XMLY.exe.config
+D:\Tidebuy\Tasks\2018-05-17_XMLY\XMLY-master\bin\Debug\XMLY.exe.manifest
+D:\Tidebuy\Tasks\2018-05-17_XMLY\XMLY-master\bin\Debug\XMLY.application
+D:\Tidebuy\Tasks\2018-05-17_XMLY\XMLY-master\bin\Debug\XMLY.exe
+D:\Tidebuy\Tasks\2018-05-17_XMLY\XMLY-master\bin\Debug\XMLY.pdb
+D:\Tidebuy\Tasks\2018-05-17_XMLY\XMLY-master\bin\Debug\Newtonsoft.Json.dll
+D:\Tidebuy\Tasks\2018-05-17_XMLY\XMLY-master\obj\Debug\XMLY.exe.manifest
+D:\Tidebuy\Tasks\2018-05-17_XMLY\XMLY-master\obj\Debug\XMLY.application

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using SD.Net;
 
 namespace XMLY
 {
@@ -20,11 +21,39 @@ namespace XMLY
         /// <returns></returns>
         public static string HttpGet(string url)
         {
-            WebClient webClient = new WebClient();
-            byte[] bytes = webClient.DownloadData(url);
-            return Encoding.UTF8.GetString(bytes);
+            try
+            {
+                var http = HttpClient.Create();
+                var txt1 = http.Go(url).GetResponse().ToText();
+                return txt1;
+                //WebClient webClient = new WebClient();
+                //byte[] bytes = webClient.DownloadData(url);
+                //return Encoding.UTF8.GetString(bytes);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
         }
 
+        public static T HttpGet<T>(string url)
+        {
+            try
+            {
+                var http = HttpClient.Create();
+                var txt1 = http.Go(url).GetResponse().ToType<T>();
+                return txt1;
+                //WebClient webClient = new WebClient();
+                //byte[] bytes = webClient.DownloadData(url);
+                //return Encoding.UTF8.GetString(bytes);
+            }
+            catch (Exception)
+            {
+                return default(T);
+            }
+
+        }
     }
 
 

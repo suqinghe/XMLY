@@ -8,6 +8,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Newtonsoft.Json;
+using XMLY.Model;
 
 namespace XMLY
 {
@@ -412,14 +414,7 @@ namespace XMLY
 
                     foreach (var item in lstUrl)
                     {
-                        if (item.Contains("/sound/"))
-                        {
-                            AnalyzeSigleDoc(item);
-                        }
-                        else
-                        {
-                            AnalyzeAlbum(item);
-                        }
+                        AnalyzeAlbum(item);
                     }
 
                     this.AddToPendingList(this.m_DownloadList);
@@ -443,53 +438,73 @@ namespace XMLY
         {
             try
             {
+                var lstSynFileInfo = new List<SynFileInfo>();
+                var albumId = 0;
 
-                WebClient webClient = new WebClient();
-                byte[] bytes = webClient.DownloadData(link);
-                string @string = Encoding.UTF8.GetString(bytes);
-                this.showinfo("完成!");
-                string value = Regex.Match(@string, "<h1>([\\w\\W]*?)</h1>").Groups[1].Value;
-                string pattern = "(?i)<li sound_id=\"(\\d*)\" class=\"\">[\\w\\W]*?hashlink[\\w\\W]*?>([\\w\\W]*?)</a>";// "sound_ids=\".*\">";//
-                MatchCollection matchCollection = Regex.Matches(@string, pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                var ids = link.Split(new string[] { "/" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-                //专辑ID
-                var albumId = link.Split(new string[] { "album/" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+                if (ids.Count() > 0)
+                    albumId = int.Parse(ids.LastOrDefault());
 
-                foreach (Match match in matchCollection)
+
+
+                var albumUrl = $@"http://www.ximalaya.com/revision/album?albumId={albumId}";
+                //var strAlbumInfo = HttpHelper.HttpGet(albumUrl);
+
+
+                var albumTitle = string.Empty;
+                var totalTrack = 0;
+                var pageSize = 30;
+                var pageNum = 1;
+                var totalPage = 0;
+
+                var albunInfo = HttpHelper.HttpGet<AlbumInfo>(albumUrl); // JsonConvert.DeserializeObject<AlbumInfo>(strAlbumInfo);
+
+                if (albunInfo != null && albunInfo.data != null)
                 {
-                    string[] values2 = new string[]
-                       {"true",
-                    match.Groups[1].Value.Trim(),
-                    value,
-                    match.Groups[2].Value.Trim()
-                       };
+                    albumId = albunInfo.data.albumId;
 
-                    var dgvRow = new DataGridViewRow();
+                    if (albunInfo.data.mainInfo != null)
+                        albumTitle = albunInfo.data.mainInfo.albumTitle;
 
-
-                    //列表中不存在，才进行添加
-                    if (!this.m_DownloadList.Any(a => a.DocID == match.Groups[1].Value.Trim()))
+                    if (albunInfo.data.tracksInfo != null)
                     {
-                        int index2 = this.m_downlist.Rows.Add(values2);
-                        DataGridViewRow rowObject2 = this.m_downlist.Rows[index2];
-                        SynFileInfo item = new SynFileInfo
-                        {
-                            DocID = match.Groups[1].Value.Trim(),
-                            DocName = match.Groups[2].Value.Trim(),
-                            RowObject = rowObject2,
-                            Album = value,
-                            Selected = true,
-                            AlbumId = albumId
-                        };
-                        this.m_DownloadList.Add(item);
+                        totalTrack = albunInfo.data.tracksInfo.trackTotalCount;
+                        totalPage = totalTrack / pageSize + 1;
                     }
-                    else
-                    {
-                        this.showinfo("列表中已经存在" + match.Groups[1].Value.Trim() + "的声音");
-                    }
-
                 }
+                 
 
+                for (int i = 1; i <= totalPage; i++)
+                {
+                    var pageAlbumUrl = $"http://www.ximalaya.com/revision/album/getTracksList?albumId={albumId}&pageNum={i}";
+
+                    var pageAlbumInfo = HttpHelper.HttpGet<PageAlbumInfo>(pageAlbumUrl);
+                    
+
+                    if (pageAlbumInfo != null && pageAlbumInfo.data != null && pageAlbumInfo.data.tracks != null && pageAlbumInfo.data.tracks.Count > 0)
+                    {
+                        foreach (var track in pageAlbumInfo.data.tracks)
+                        {
+                            if (!this.m_DownloadList.Any(a => a.DocID == track.trackId.ToString()))
+                            {
+                                int index2 = this.m_downlist.Rows.Add(new string[] { "true", track.trackId.ToString(), albumTitle, track.title });
+                                DataGridViewRow rowObject2 = this.m_downlist.Rows[index2];
+                                SynFileInfo item = new SynFileInfo
+                                {
+                                    DocID = track.trackId.ToString(),
+                                    DocName = track.title.Trim(),
+                                    RowObject = rowObject2,
+                                    Album = albumTitle,
+                                    Selected = true,
+                                    AlbumId = albumId.ToString()
+                                };
+                                this.m_DownloadList.Add(item);
+                            }
+
+                        }
+                    }
+                }
 
                 this.showinfo("共" + this.m_DownloadList.Count.ToString() + "条声音");
             }

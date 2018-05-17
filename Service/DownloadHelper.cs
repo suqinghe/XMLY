@@ -23,28 +23,39 @@ namespace XMLY
         /// <param name="tf"></param>
         public static void GetJsonInfo(SynFileInfo tf)
         {
-            string value = HttpHelper.HttpGet("http://www.ximalaya.com/tracks/" + tf.DocID + ".json");
-            JToken jToken = JsonConvert.DeserializeObject<JToken>(value);
-            tf.DownPath = jToken["play_path_64"].ToString();
-            if (tf.DownPath.IndexOf("http://") < 0)
+            try
             {
-                tf.DownPath = "http://fdfs.xmcdn.com/" + jToken["play_path_64"].ToString();
-            }
-            string value2 = jToken["duration"].ToString();
-            tf.DocName = FileHelper.FixFileName(jToken["title"].ToString());
-            tf.Album = FileHelper.FixFileName(jToken["album_title"].ToString());
-            tf.duration = (int)Convert.ToDouble(value2);
-            tf.AlbumId = jToken["album_id"].ToString();
-            FileHelper.MakeDirectory(FileHelper.GetSavePath() + "\\" + tf.Album + "\\");
-            tf.SavePath = string.Concat(new string[]
-            {
-                FileHelper.GetSavePath(),
+                string trackUrl = $"http://www.ximalaya.com/revision/play/tracks?trackIds={tf.DocID}";
+
+                var soundInfo = HttpHelper.HttpGet<TrackInfos>(trackUrl);
+
+                if (soundInfo != null && soundInfo.data != null && soundInfo.data.tracksForAudioPlay != null && soundInfo.data.tracksForAudioPlay.Count > 0)
+                {
+                    var downInfo = soundInfo.data.tracksForAudioPlay.FirstOrDefault();
+                    tf.DownPath = downInfo.src;
+
+                    tf.DocName = downInfo.trackName;
+                    tf.Album = downInfo.albumName;
+                    tf.duration = downInfo.duration;
+                    tf.AlbumId = downInfo.albumId.ToString();
+                    FileHelper.MakeDirectory(FileHelper.GetSavePath() + "\\" + tf.Album + "\\");
+                    tf.SavePath = string.Concat(new string[]
+                    {
+                        FileHelper.GetSavePath(),
                 "\\",
                 tf.Album,
                 "\\",
                 tf.DocName,
                 ".mp3"
-            });
+                    });
+                }
+
+            }
+            catch (Exception)
+            {
+            }
+
+
         }
 
 

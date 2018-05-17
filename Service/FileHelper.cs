@@ -83,27 +83,37 @@ namespace XMLY
         /// <returns></returns>
         public static string GetSavePath()
         {
-            if (!string.IsNullOrWhiteSpace(SavePath))
-                return SavePath;
+            var defaultPath = @"D:\\喜马拉雅";
 
-            var path = Application.StartupPath;
-
-            var fl = new FileInfo(Application.StartupPath + "/setting.ini");
-            if (fl.Exists)
+            try
             {
-                var temp = File.ReadAllText(fl.FullName);
-                if (!string.IsNullOrWhiteSpace(temp))
+                if (!string.IsNullOrWhiteSpace(SavePath))
+                    return SavePath;
+
+                var path = Application.StartupPath;
+
+                var fl = new FileInfo(Application.StartupPath + "/setting.ini");
+                if (fl.Exists)
                 {
-                    var newFl = new DirectoryInfo(temp);
-                    if (!newFl.Exists)
-                        MakeDirectory(newFl.FullName);
+                    var temp = File.ReadAllText(fl.FullName);
+                    if (!string.IsNullOrWhiteSpace(temp))
+                    {
+                        var newFl = new DirectoryInfo(temp);
+                        if (!newFl.Exists)
+                            MakeDirectory(newFl.FullName);
 
-                    path = newFl.FullName;
+                        path = newFl.FullName;
 
-                    SavePath = path;
+                        SavePath = path;
+                    }
                 }
             }
-            return path;
+            catch (Exception exp)
+            {
+
+            }
+
+            return defaultPath;
         }
 
         public static string GetSavePath(string albumName)
