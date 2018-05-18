@@ -3,7 +3,7 @@
   <asmv1:assemblyIdentity name="XMLY.exe" version="1.5.0.0" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="XMLY" version="1.5.0.0" language="neutral" processorArchitecture="msil" />
+    <assemblyIdentity name="XMLY" version="1.6.0.0" language="neutral" processorArchitecture="msil" />
     <commandLine file="XMLY.exe" parameters="" />
   </entryPoint>
   <trustInfo>
@@ -66,14 +66,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="XMLY.exe" size="158688">
-      <assemblyIdentity name="XMLY" version="1.5.0.0" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="XMLY.exe" size="159200">
+      <assemblyIdentity name="XMLY" version="1.6.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>DjpFZQybAYFujVbfGdrgT38IeT4=</dsig:DigestValue>
+        <dsig:DigestValue>4V2jYceijqD30Vd5zhiSaPVNmfE=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

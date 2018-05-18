@@ -1,12 +1,8 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Windows.Forms;
 using System.IO;
+using System.Linq;
+using System.Windows.Forms;
 using System.Xml.Serialization;
 
 namespace XMLY
@@ -16,7 +12,6 @@ namespace XMLY
     /// </summary>
     public static class DownloadHelper
     {
-
         /// <summary>
         /// 获取下载JSON信息
         /// </summary>
@@ -38,26 +33,15 @@ namespace XMLY
                     tf.Album = downInfo.albumName;
                     tf.duration = downInfo.duration;
                     tf.AlbumId = downInfo.albumId.ToString();
-                    FileHelper.MakeDirectory(FileHelper.GetSavePath() + "\\" + tf.Album + "\\");
-                    tf.SavePath = string.Concat(new string[]
-                    {
-                        FileHelper.GetSavePath(),
-                "\\",
-                tf.Album,
-                "\\",
-                tf.DocName,
-                ".mp3"
-                    });
+                    var savePath = FileHelper.GetSavePath();
+                    FileHelper.MakeDirectory(savePath + "\\" + tf.Album + "\\");
+                    tf.SavePath = $@"{savePath}\{tf.Album}\{tf.DocName}.mp3";
                 }
-
             }
-            catch (Exception)
+            catch (Exception exp)
             {
             }
-
-
         }
-
 
         // 喜马拉雅音频下载器.Form1
         public static string SaveList(List<SynFileInfo> lst, string xmlPath = null)
@@ -92,7 +76,6 @@ namespace XMLY
 
             return xmlPath;
         }
-
 
         // 喜马拉雅音频下载器.Form1
         public static List<SynFileInfo> LoadList(string xmlPath, string xmlName = null)

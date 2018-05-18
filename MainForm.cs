@@ -5,23 +5,20 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 using XMLY.Model;
 
 namespace XMLY
 {
     public partial class MainForm : Form
     {
-
         public MainForm()
         {
             InitializeComponent();
         }
 
         #region 局部变量
+
         /// <summary>
         /// 下载列表
         /// </summary>
@@ -34,11 +31,12 @@ namespace XMLY
 
         private string placeHolder = "请在此处输入专辑链接，多个链接请换行";
 
-
         private bool IsDownload = true;
-        #endregion
+
+        #endregion 局部变量
 
         #region 监测连接状态
+
         [DllImport("wininet.dll")]
         private static extern bool InternetGetConnectedState(out int connectionDescription, int reservedValue);
 
@@ -47,7 +45,8 @@ namespace XMLY
             int num = 0;
             return MainForm.InternetGetConnectedState(out num, 0);
         }
-        #endregion
+
+        #endregion 监测连接状态
 
         #region 界面信息显示
 
@@ -62,7 +61,7 @@ namespace XMLY
             Application.DoEvents();
         }
 
-        #endregion
+        #endregion 界面信息显示
 
         #region 内容列表选择
 
@@ -73,7 +72,6 @@ namespace XMLY
         /// <param name="e"></param>
         private void m_downlist_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-
             if (e.ColumnIndex == 0 && e.RowIndex != -1)
             {
                 m_downlist.Rows[e.RowIndex].Cells[0].Value = !Convert.ToBoolean(m_downlist.Rows[e.RowIndex].Cells[0].Value);
@@ -81,9 +79,10 @@ namespace XMLY
             }
         }
 
-        #endregion
+        #endregion 内容列表选择
 
         #region 下载部分
+
         /// <summary>
         /// 开始下载
         /// </summary>
@@ -104,6 +103,20 @@ namespace XMLY
         {
             try
             {
+                if (sfi.DownPath == null)
+                {
+                    this.showinfo("下载地址不正确，该音频可能为付费音频，不能下载！");
+
+                    sfi.isComplete = true;
+
+                    var repeatRow = this.m_downlist.Rows.Cast<DataGridViewRow>().FirstOrDefault(a => a.Cells["DocId"].Value.ToString() == sfi.DocID);
+                    if (repeatRow != null)
+                    {
+                        repeatRow.DefaultCellStyle.ForeColor = Color.Red;
+                    }
+
+                    this.StartNewWork();
+                }
                 sfi.LastTime = DateTime.Now;
                 WebClient webClient = new WebClient();
                 webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(this.client_DownloadProgressChanged);
@@ -112,9 +125,10 @@ namespace XMLY
             }
             catch (Exception exp)
             {
-                var content = "下载出现错误，请重试！若仍有问题，请联系作者！";
+                var content = "下载出现错误，该音频可能为付费音频，不能下载！若仍有问题，请联系作者！";
                 LogHelper.WriteLog("StartDownload" + content + exp.Message);
                 this.showinfo(content);
+                return;
             }
         }
 
@@ -181,7 +195,6 @@ namespace XMLY
             this.StartNewWork();
         }
 
-
         /// <summary>
         /// 获取下一个下载信息
         /// </summary>
@@ -225,7 +238,6 @@ namespace XMLY
                 next.RowObject.Cells["duration"].Value = (next.duration / 60).ToString() + "分钟";
                 this.showinfo("下载:" + next.DocName);
 
-
                 //如果专辑名称不一样，则保存起来
                 if (next.Album != lastAlbum)
                 {
@@ -241,7 +253,6 @@ namespace XMLY
                 this.showinfo(content);
             }
         }
-
 
         /// <summary>
         /// 添加文件到列表
@@ -302,10 +313,9 @@ namespace XMLY
 
             if (!string.IsNullOrWhiteSpace(path))
                 MessageBox.Show("列表保存成功，保存路径为：" + path, "列表保存提醒", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
         }
 
-        #endregion
+        #endregion 下载部分
 
         #region 清空操作
 
@@ -327,9 +337,10 @@ namespace XMLY
             parentNode.Nodes.Clear();
         }
 
-        #endregion
+        #endregion 清空操作
 
         #region URL地址栏操作
+
         /// <summary>
         /// 点击URL栏目
         /// </summary>
@@ -343,6 +354,7 @@ namespace XMLY
                 this.txtUrl.ForeColor = System.Drawing.Color.Black;
             }
         }
+
         /// <summary>
         /// 离开URL栏目
         /// </summary>
@@ -366,7 +378,7 @@ namespace XMLY
             }
         }
 
-        #endregion
+        #endregion URL地址栏操作
 
         #region 分析下载部分
 
@@ -419,8 +431,6 @@ namespace XMLY
 
                     this.AddToPendingList(this.m_DownloadList);
                 }
-
-
             }
             catch (Exception exp)
             {
@@ -429,7 +439,6 @@ namespace XMLY
                 this.showinfo(content);
             }
         }
-
 
         /// <summary>
         /// 分析整张专辑
@@ -443,67 +452,68 @@ namespace XMLY
 
                 var ids = link.Split(new string[] { "/" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-                if (ids.Count() > 0)
-                    albumId = int.Parse(ids.LastOrDefault());
-
-
-
-                var albumUrl = $@"http://www.ximalaya.com/revision/album?albumId={albumId}";
-                //var strAlbumInfo = HttpHelper.HttpGet(albumUrl);
-
-
-                var albumTitle = string.Empty;
-                var totalTrack = 0;
-                var pageSize = 30;
-                var pageNum = 1;
-                var totalPage = 0;
-
-                var albunInfo = HttpHelper.HttpGet<AlbumInfo>(albumUrl); // JsonConvert.DeserializeObject<AlbumInfo>(strAlbumInfo);
-
-                if (albunInfo != null && albunInfo.data != null)
+                //专辑
+                if (ids.Count == 5)
                 {
-                    albumId = albunInfo.data.albumId;
+                    if (ids.Count() > 0)
+                        albumId = int.Parse(ids.LastOrDefault());
 
-                    if (albunInfo.data.mainInfo != null)
-                        albumTitle = albunInfo.data.mainInfo.albumTitle;
+                    var albumUrl = $@"http://www.ximalaya.com/revision/album?albumId={albumId}";
 
-                    if (albunInfo.data.tracksInfo != null)
+                    var albumTitle = string.Empty;
+                    var totalTrack = 0;
+                    var pageSize = 30;
+                    var totalPage = 0;
+
+                    var albumInfo = HttpHelper.HttpGet<AlbumInfo>(albumUrl);
+
+                    if (albumInfo != null && albumInfo.data != null)
                     {
-                        totalTrack = albunInfo.data.tracksInfo.trackTotalCount;
-                        totalPage = totalTrack / pageSize + 1;
-                    }
-                }
-                 
+                        albumId = albumInfo.data.albumId;
 
-                for (int i = 1; i <= totalPage; i++)
-                {
-                    var pageAlbumUrl = $"http://www.ximalaya.com/revision/album/getTracksList?albumId={albumId}&pageNum={i}";
+                        if (albumInfo.data.mainInfo != null)
+                            albumTitle = albumInfo.data.mainInfo.albumTitle;
 
-                    var pageAlbumInfo = HttpHelper.HttpGet<PageAlbumInfo>(pageAlbumUrl);
-                    
-
-                    if (pageAlbumInfo != null && pageAlbumInfo.data != null && pageAlbumInfo.data.tracks != null && pageAlbumInfo.data.tracks.Count > 0)
-                    {
-                        foreach (var track in pageAlbumInfo.data.tracks)
+                        if (albumInfo.data.tracksInfo != null)
                         {
-                            if (!this.m_DownloadList.Any(a => a.DocID == track.trackId.ToString()))
-                            {
-                                int index2 = this.m_downlist.Rows.Add(new string[] { "true", track.trackId.ToString(), albumTitle, track.title });
-                                DataGridViewRow rowObject2 = this.m_downlist.Rows[index2];
-                                SynFileInfo item = new SynFileInfo
-                                {
-                                    DocID = track.trackId.ToString(),
-                                    DocName = track.title.Trim(),
-                                    RowObject = rowObject2,
-                                    Album = albumTitle,
-                                    Selected = true,
-                                    AlbumId = albumId.ToString()
-                                };
-                                this.m_DownloadList.Add(item);
-                            }
-
+                            totalTrack = albumInfo.data.tracksInfo.trackTotalCount;
+                            totalPage = totalTrack / pageSize + 1;
                         }
                     }
+
+                    for (int i = 1; i <= totalPage; i++)
+                    {
+                        var pageAlbumUrl = $"http://www.ximalaya.com/revision/album/getTracksList?albumId={albumId}&pageNum={i}";
+
+                        var pageAlbumInfo = HttpHelper.HttpGet<PageAlbumInfo>(pageAlbumUrl);
+
+                        if (pageAlbumInfo != null && pageAlbumInfo.data != null && pageAlbumInfo.data.tracks != null && pageAlbumInfo.data.tracks.Count > 0)
+                        {
+                            foreach (var track in pageAlbumInfo.data.tracks)
+                            {
+                                if (!this.m_DownloadList.Any(a => a.DocID == track.trackId.ToString()))
+                                {
+                                    int index2 = this.m_downlist.Rows.Add(new string[] { "true", track.trackId.ToString(), albumTitle, track.title });
+                                    DataGridViewRow rowObject2 = this.m_downlist.Rows[index2];
+                                    SynFileInfo item = new SynFileInfo
+                                    {
+                                        DocID = track.trackId.ToString(),
+                                        DocName = track.title.Trim(),
+                                        RowObject = rowObject2,
+                                        Album = albumTitle,
+                                        Selected = true,
+                                        AlbumId = albumId.ToString()
+                                    };
+                                    this.m_DownloadList.Add(item);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var trackId = int.Parse(ids.LastOrDefault());
+                    AnalyzeSigleDoc(trackId);
                 }
 
                 this.showinfo("共" + this.m_DownloadList.Count.ToString() + "条声音");
@@ -529,8 +539,6 @@ namespace XMLY
                             XmlName = g.FirstOrDefault().XmlName
                         };
 
-
-
             var parentNode = FindPendingNode();
             foreach (var item in items)
             {
@@ -541,9 +549,7 @@ namespace XMLY
                     if (item.IsAllComplete)
                         addNode.ForeColor = Color.Green;
                 }
-
             }
-
         }
 
         private TreeNode FindPendingNode()
@@ -568,47 +574,64 @@ namespace XMLY
         /// <summary>
         /// 分析单个
         /// </summary>
-        private void AnalyzeSigleDoc(string link)
+        private void AnalyzeSigleDoc(int trackId)
         {
-            string text = link;
-            string docID = text.Substring(text.IndexOf("sound/") + 6);
-            SynFileInfo synFileInfo = new SynFileInfo { Selected = true };
-            synFileInfo.DocID = docID;
-            DownloadHelper.GetJsonInfo(synFileInfo);
+            if (trackId <= 0)
+                return;
+
+            string trackUrl = $"http://www.ximalaya.com/revision/play/tracks?trackIds={trackId}";
+
+            SynFileInfo tf = new SynFileInfo { Selected = true };
+
+            var soundInfo = HttpHelper.HttpGet<TrackInfos>(trackUrl);
+
+            if (soundInfo != null && soundInfo.data != null && soundInfo.data.tracksForAudioPlay != null && soundInfo.data.tracksForAudioPlay.Count > 0)
+            {
+                var downInfo = soundInfo.data.tracksForAudioPlay.FirstOrDefault();
+                tf.DownPath = downInfo.src;
+                tf.DocID = trackId.ToString();
+                tf.DocName = downInfo.trackName;
+                tf.Album = downInfo.albumName;
+                tf.duration = downInfo.duration;
+                tf.AlbumId = downInfo.albumId.ToString();
+                var savePath = FileHelper.GetSavePath();
+                FileHelper.MakeDirectory(savePath + "\\" + tf.Album + "\\");
+                tf.SavePath = $@"{savePath}\{tf.Album}\{tf.DocName}.mp3";
+            }
+
             string[] values = new string[]
             {
                     "true",
-                    synFileInfo.DocID,
-                    synFileInfo.Album,
-                    synFileInfo.DocName
+                    tf.DocID,
+                    tf.Album,
+                    tf.DocName
             };
 
             //列表中不存在，才进行添加
-            if (!this.m_DownloadList.Any(a => a.DocID == synFileInfo.DocID))
+            if (!this.m_DownloadList.Any(a => a.DocID == tf.DocID))
             {
                 int index = this.m_downlist.Rows.Add(values);
                 DataGridViewRow rowObject = this.m_downlist.Rows[index];
 
-                synFileInfo.RowObject = rowObject;
-                synFileInfo.RowObject.Cells["duration"].Value = (synFileInfo.duration / 60).ToString() + "分钟";
+                tf.RowObject = rowObject;
+                tf.RowObject.Cells["duration"].Value = (tf.duration / 60).ToString() + "分钟";
 
-                this.m_DownloadList.Add(synFileInfo);
+                this.m_DownloadList.Add(tf);
             }
             else
             {
-                this.showinfo("列表中已经存在" + synFileInfo.DocID + "的声音");
+                this.showinfo("列表中已经存在" + tf.DocID + "的声音");
             }
 
-            AddToPendingList(synFileInfo);
+            AddToPendingList(tf);
 
             return;
         }
 
-
-
-        #endregion
+        #endregion 分析下载部分
 
         #region 关于部分
+
         /// <summary>
         /// 关于作者
         /// </summary>
@@ -649,7 +672,6 @@ namespace XMLY
             MessageBox.Show("作者很忙的，只留下了如下联系方式：\r\n邮箱：suqingheangle@163.com\r\n博客：http://blog.cdsn.net/suqingheangle \r\n\r\n--有态度的Coder", "联系我们", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-
         /// <summary>
         /// 捐赠该软件
         /// </summary>
@@ -658,9 +680,7 @@ namespace XMLY
         private void tmi_donate_author_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start("http://blog.csdn.net/suqingheangle/article/details/53229287");
-
         }
-
 
         /// <summary>
         /// 用户手册
@@ -672,10 +692,9 @@ namespace XMLY
             System.Diagnostics.Process.Start("http://blog.csdn.net/suqingheangle/article/details/53228402");
         }
 
-
         /// <summary>
         /// 打开博客链接
-        /// 
+        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -684,7 +703,6 @@ namespace XMLY
             System.Diagnostics.Process.Start("http://blog.csdn.net/suqingheangle");
         }
 
-
         /// <summary>
         /// 版本说明
         /// </summary>
@@ -692,13 +710,13 @@ namespace XMLY
         /// <param name="e"></param>
         private void tsmi_version_Click(object sender, EventArgs e)
         {
-
             MessageBox.Show("当前软件版本为：" + Application.ProductVersion, "软件版本", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        #endregion
+        #endregion 关于部分
 
         #region 系统设置
+
         /// <summary>
         /// 下载路径设置
         /// </summary>
@@ -727,7 +745,6 @@ namespace XMLY
             System.Diagnostics.Process.Start("Explorer.exe", path);
         }
 
-
         /// <summary>
         /// 退出系统
         /// </summary>
@@ -750,7 +767,6 @@ namespace XMLY
             this.m_DownloadList.Clear();
         }
 
-
         /// <summary>
         /// 保存列表
         /// </summary>
@@ -771,7 +787,6 @@ namespace XMLY
         /// <param name="e"></param>
         private void tmi_load_list_Click(object sender, EventArgs e)
         {
-
             OpenFileDialog ofdig = new OpenFileDialog();
             ofdig.InitialDirectory = Application.StartupPath + "/Download";
             if (ofdig.ShowDialog() == DialogResult.OK)
@@ -783,12 +798,12 @@ namespace XMLY
 
                 AddToPendingList(this.m_DownloadList);
             }
-
         }
 
-        #endregion
+        #endregion 系统设置
 
         #region 下载树状菜单事件
+
         /// <summary>
         /// 即将下载双击
         /// </summary>
@@ -799,7 +814,6 @@ namespace XMLY
             //var selectNode = this.tvPendingDownload.SelectedNode;
             //if (selectNode.Name == "pendingNode")
             //{
-
             //}
             //else
             //{
@@ -829,7 +843,6 @@ namespace XMLY
             }
         }
 
-
         /// <summary>
         /// 下载专辑
         /// </summary>
@@ -857,7 +870,6 @@ namespace XMLY
 
                         AddFileToGridDataView(lst);
                     }
-
                 }
                 else
                 {
@@ -869,7 +881,6 @@ namespace XMLY
                 MessageBox.Show("下载错误", "系统提示");
             }
         }
-
 
         /// <summary>
         /// 打开专辑
@@ -888,13 +899,12 @@ namespace XMLY
                 }
                 else
                 {
-
                     System.Diagnostics.Process.Start("Explorer.exe", path);
                 }
             }
         }
 
-        #endregion
+        #endregion 下载树状菜单事件
 
         private void m_downlist_MouseClick(object sender, MouseEventArgs e)
         {
