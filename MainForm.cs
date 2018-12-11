@@ -452,20 +452,20 @@ namespace XMLY
 
                 var ids = link.Split(new string[] { "/" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
+
+                albumId = int.Parse(ids.LastOrDefault());
+                var albumUrl = $@"http://www.ximalaya.com/revision/album?albumId={albumId}";
+
+
+                var albumInfo = HttpHelper.HttpGet<AlbumInfo>(albumUrl);
+
                 //专辑
-                if (ids.Count == 5)
+                if (albumInfo != null && albumInfo.msg == "成功" && albumInfo.data != null)
                 {
-                    if (ids.Count() > 0)
-                        albumId = int.Parse(ids.LastOrDefault());
-
-                    var albumUrl = $@"http://www.ximalaya.com/revision/album?albumId={albumId}";
-
                     var albumTitle = string.Empty;
                     var totalTrack = 0;
                     var pageSize = 30;
                     var totalPage = 0;
-
-                    var albumInfo = HttpHelper.HttpGet<AlbumInfo>(albumUrl);
 
                     if (albumInfo != null && albumInfo.data != null)
                     {
@@ -509,12 +509,20 @@ namespace XMLY
                             }
                         }
                     }
+
                 }
-                else
+                else//单曲
                 {
-                    var trackId = int.Parse(ids.LastOrDefault());
-                    AnalyzeSigleDoc(trackId);
+                    string trackUrl = $"http://www.ximalaya.com/revision/play/tracks?trackIds={albumId}";
+
+                    SynFileInfo tf = new SynFileInfo { Selected = true };
+
+                    var soundInfo = HttpHelper.HttpGet<TrackInfos>(trackUrl);
+
+                    if (soundInfo != null && soundInfo.data != null)
+                        AnalyzeSigleDoc(soundInfo);
                 }
+
 
                 this.showinfo("共" + this.m_DownloadList.Count.ToString() + "条声音");
             }
@@ -574,22 +582,17 @@ namespace XMLY
         /// <summary>
         /// 分析单个
         /// </summary>
-        private void AnalyzeSigleDoc(int trackId)
+        private void AnalyzeSigleDoc(TrackInfos soundInfo)
         {
-            if (trackId <= 0)
-                return;
-
-            string trackUrl = $"http://www.ximalaya.com/revision/play/tracks?trackIds={trackId}";
 
             SynFileInfo tf = new SynFileInfo { Selected = true };
 
-            var soundInfo = HttpHelper.HttpGet<TrackInfos>(trackUrl);
 
             if (soundInfo != null && soundInfo.data != null && soundInfo.data.tracksForAudioPlay != null && soundInfo.data.tracksForAudioPlay.Count > 0)
             {
                 var downInfo = soundInfo.data.tracksForAudioPlay.FirstOrDefault();
                 tf.DownPath = downInfo.src;
-                tf.DocID = trackId.ToString();
+                tf.DocID = downInfo.trackId.ToString();
                 tf.DocName = downInfo.trackName;
                 tf.Album = downInfo.albumName;
                 tf.duration = downInfo.duration;
